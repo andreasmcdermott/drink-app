@@ -1,0 +1,196 @@
+{
+  "generator": "Built-in image_gen tool",
+  "styleReference": "clover-club",
+  "sharedPrompt": "Use case: stylized-concept.\nAsset type: individual square cocktail illustration bundled in the Pour iPhone app.\nReference image: STYLE REFERENCE ONLY. Match its delicate hand-painted gouache/watercolor and colored-pencil glass rendering, restrained forest-green contour accents, warm ivory background, soft light and refined drinks-book aesthetic. Draw a completely NEW drink as described, not a recoloring of the reference. Do not copy its raspberry or foam unless requested.\nOne glass only, full glass with entire base and garnish visible, centered square composition with about 12% margins, consistent optical scale, slight elevated three-quarter view, subtle grounding shadow. Natural drink colors and realistic glass proportions. Uniform warm ivory #F6F3EB background edge to edge. Fine paper-like texture only within painted objects, restrained soft shading.\nNo text, letters, numbers, labels, logos, borders, extra glasses, bottles, hands, loose tabletop ingredients, watermark, UI mockup, photorealistic photograph or plastic 3D look.",
+  "recipes": [
+    {
+      "id": "clover-club",
+      "prompt": "Use case: stylized-concept\nAsset type: single square cocktail illustration for the Pour iPhone recipe app.\nCreate one refined editorial gouache-and-colored-pencil illustration of a Clover Club cocktail: pale raspberry-pink liquid in a graceful shallow clear coupe, slender stem and circular foot, a creamy white egg-white foam cap, and one small raspberry resting on the rim. Correct cocktail anatomy, one glass only.\nArt direction: tasteful mid-century drinks-book illustration, hand-painted translucent glass, subtle paper grain inside the paint, delicate muted forest-green contour accents, restrained realistic proportions and soft dimensional shading. Premium and inviting, not cartoonish, not photorealistic or 3D.\nComposition: square 1024x1024, entire glass centered including foot and garnish, generous equal negative space, glass occupies about 72% of canvas height, slight elevated three-quarter view. Faint soft grounding shadow.\nBackground: completely uniform warm ivory #F6F3EB, matching the app canvas edge to edge, no vignette or scene.\nPalette: warm ivory, forest green accents, natural soft raspberry pink and cream. No lettering, labels, logos, borders, extra objects, ingredients laid on table, hands, or watermark. This is a production asset, not a UI mockup."
+    },
+    {
+      "id": "old-fashioned",
+      "name": "Old Fashioned",
+      "subject": "Short heavy clear rocks tumbler, amber bourbon, one large clear ice cube and a curled orange peel, no cherry."
+    },
+    {
+      "id": "negroni",
+      "name": "Negroni",
+      "subject": "Low clear rocks tumbler, transparent ruby-red bitter cocktail, one large ice cube, thick orange half-wheel resting against inner rim."
+    },
+    {
+      "id": "margarita",
+      "name": "Margarita",
+      "subject": "Elegant shallow clear coupe, pale cloudy lime-yellow drink with no foam, a fine salt coating on only half the rim, small lime wheel."
+    },
+    {
+      "id": "daiquiri",
+      "name": "Daiquiri",
+      "subject": "Slender clear coupe, pale almost-white translucent lime-yellow drink, no foam, no garnish, no ice in the glass."
+    },
+    {
+      "id": "whiskey-sour",
+      "name": "Whiskey Sour",
+      "subject": "Short clear rocks tumbler, golden amber lemon-whiskey drink over chunky clear ice, thin lemon half-wheel. No egg white or foam."
+    },
+    {
+      "id": "gin-sour",
+      "name": "Gin Sour",
+      "subject": "Graceful clear coupe, pale cloudy lemon-yellow gin sour, no egg foam, no garnish or ice."
+    },
+    {
+      "id": "bees-knees",
+      "name": "Bee’s Knees",
+      "subject": "Graceful clear coupe, luminous pale honey-gold liquid, narrow curled lemon twist on rim, no ice and no thick foam."
+    },
+    {
+      "id": "gimlet",
+      "name": "Fresh Lime Gimlet",
+      "subject": "Slender clear coupe, very pale cloudy lime-green-yellow drink, a thin fresh lime wheel on rim, no foam and no ice."
+    },
+    {
+      "id": "tom-collins",
+      "name": "Tom Collins",
+      "subject": "Tall straight clear Collins glass, pale lemon-yellow sparkling drink, stacked angular ice cubes, fine rising bubbles and one lemon wheel inside rim."
+    },
+    {
+      "id": "gin-tonic",
+      "name": "Gin & Tonic",
+      "subject": "Tall clear highball, nearly colorless sparkling liquid, stacked ice cubes, one vivid fresh lime wedge on rim."
+    },
+    {
+      "id": "martini",
+      "name": "Dry Martini",
+      "subject": "Elegant clear V-shaped martini glass with slender stem, colorless drink, a single thin lemon twist draped over rim. No olives, no ice, no foam."
+    },
+    {
+      "id": "white-lady",
+      "name": "White Lady",
+      "subject": "Graceful clear coupe, slightly cloudy ivory-white lemon-yellow liquid, a delicate curled lemon twist. This recipe has NO egg-white foam. No ice."
+    },
+    {
+      "id": "gin-and-it",
+      "name": "Gin & It",
+      "subject": "Small graceful stemmed coupe, transparent warm reddish amber gin-and-sweet-vermouth drink, orange twist over rim, no ice or foam."
+    },
+    {
+      "id": "french-75",
+      "name": "French 75",
+      "subject": "Tall slender stemmed clear wine glass, pale straw-gold sparkling drink, fine rising bubbles, slender lemon twist inside rim, no ice or foam cap."
+    },
+    {
+      "id": "aviation",
+      "name": "Aviation",
+      "subject": "Graceful clear coupe, very pale misty lavender liquid, one dark red cocktail cherry on a fine pick across the rim, no ice, no foam."
+    },
+    {
+      "id": "last-word",
+      "name": "Last Word",
+      "subject": "Graceful clear coupe, pale cloudy chartreuse-green drink, no garnish, no ice, no foam."
+    },
+    {
+      "id": "bramble",
+      "name": "Bramble",
+      "subject": "Short clear rocks glass heaped with crushed ice, pale lemon-yellow cocktail streaked with deep blackberry-purple liqueur descending through the ice, one blackberry and a slim lemon slice."
+    },
+    {
+      "id": "southside",
+      "name": "Southside",
+      "subject": "Clear slender coupe, pale cloudy greenish lime drink, one small fresh mint leaf floating on top, no ice or thick foam."
+    },
+    {
+      "id": "gin-basil-smash",
+      "name": "Gin Basil Smash",
+      "subject": "Low clear rocks tumbler, vibrant natural basil-green drink over chunky ice, a fresh basil sprig with broad smooth leaves. Basil leaves, NOT mint."
+    },
+    {
+      "id": "hanky-panky",
+      "name": "Hanky Panky",
+      "subject": "Elegant clear stemmed coupe, dark translucent amber-brown gin and vermouth drink, one orange peel twist, no ice or foam."
+    },
+    {
+      "id": "corpse-reviver-2",
+      "name": "Corpse Reviver No. 2",
+      "subject": "Elegant stemmed coupe, very pale cloudy lemon-straw liquid with a delicate orange twist on rim, no ice or foam."
+    },
+    {
+      "id": "martinez",
+      "name": "Martinez",
+      "subject": "Small graceful stemmed coupe, transparent rich reddish amber gin-vermouth cocktail, slender yellow lemon twist, no ice or foam."
+    },
+    {
+      "id": "manhattan",
+      "name": "Manhattan",
+      "subject": "Elegant clear stemmed coupe, transparent deep amber-red whiskey drink, single dark cocktail cherry resting inside the bowl, no ice or foam."
+    },
+    {
+      "id": "boulevardier",
+      "name": "Boulevardier",
+      "subject": "Low heavy clear rocks tumbler, deep copper-red amber cocktail, one large clear ice cube, broad orange peel curled inside rim."
+    },
+    {
+      "id": "americano",
+      "name": "Americano",
+      "subject": "Tall clear highball glass, sparkling bright ruby-red Campari and vermouth drink, several chunky ice cubes, orange half-wheel inside rim."
+    },
+    {
+      "id": "aperol-spritz",
+      "name": "Aperol Spritz",
+      "subject": "Generous clear stemmed wine glass, brilliant natural orange Aperol drink, clear ice cubes, fine rising bubbles, a broad orange slice inside the glass."
+    },
+    {
+      "id": "mojito",
+      "name": "Mojito",
+      "subject": "Tall clear highball glass, nearly clear pale lime drink, irregular ice cubes, small fresh mint leaves distributed through liquid, lush fresh mint sprig at top. No fruit garnish."
+    },
+    {
+      "id": "cuba-libre",
+      "name": "Cuba Libre",
+      "subject": "Tall clear highball, deep translucent cola-brown liquid over chunky ice, lime wedge on rim and subtle carbonation."
+    },
+    {
+      "id": "dark-stormy",
+      "name": "Dark Rum & Ginger",
+      "subject": "Tall clear highball, amber dark rum fading into pale golden ginger beer, irregular clear ice cubes, no garnish."
+    },
+    {
+      "id": "moscow-mule",
+      "name": "Moscow Mule",
+      "subject": "Tall clear highball glass, pale golden sparkling ginger-lime drink over chunky clear ice, one thin lime wheel. Use a GLASS, not a copper mug, to match this recipe."
+    },
+    {
+      "id": "cosmopolitan",
+      "name": "Cosmopolitan",
+      "subject": "Elegant shallow clear coupe, translucent rosy cranberry-pink cocktail, one slender orange peel twist at rim, no ice or foam."
+    },
+    {
+      "id": "espresso-martini",
+      "name": "Espresso Martini",
+      "subject": "Clear stemmed coupe, deep espresso-brown liquid beneath an even creamy tan crema foam cap, exactly three small coffee beans centered on foam, no citrus and no ice."
+    },
+    {
+      "id": "black-russian",
+      "name": "Black Russian",
+      "subject": "Low heavy clear rocks tumbler, very dark coffee-brown transparent liquid over three large ice cubes, no cream, no foam, no garnish."
+    },
+    {
+      "id": "paloma",
+      "name": "Fresh Paloma",
+      "subject": "Tall clear highball, cloudy soft grapefruit-pink drink with ice and fine bubbles, thin grapefruit wedge on rim, subtle partial salt rim."
+    },
+    {
+      "id": "sidecar",
+      "name": "Sidecar",
+      "subject": "Graceful clear coupe, warm golden amber brandy-citrus drink, narrow orange twist, delicate fine sugar on half the rim, no ice or foam."
+    },
+    {
+      "id": "screwdriver",
+      "name": "Screwdriver",
+      "subject": "Tall straight clear highball, opaque freshly squeezed orange-yellow juice and vodka over clear ice, no garnish."
+    },
+    {
+      "id": "mint-lemon-fizz",
+      "name": "Mint Lemon Fizz",
+      "subject": "Tall clear highball, cloudy pale lemon-yellow sparkling liquid with ice, a few fresh mint leaves in glass, thin lemon wheel on rim. Fresh alcohol-free drink."
+    }
+  ]
+}
