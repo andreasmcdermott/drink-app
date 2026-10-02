@@ -28,7 +28,7 @@ A recipe is available when every required ingredient is on the shelf. Ice and wa
 
 Shopping recommendations evaluate every useful one- and two-ingredient purchase. They count only original recipes that become newly available, rank by that count, prefer fewer purchases on ties, and discard pairs if either ingredient contributes no additional recipes. Variations are checked on the recipe screen but do not inflate shopping counts. Prices and bottle sizes are not modeled.
 
-Measurements scale before display conversion. One US fluid ounce equals 29.5735295625 ml; ounce displays round to two decimal places. Mint leaves and bitters dashes scale without volume conversion. Multi-serving recipes advise mixing in small batches.
+Every volume ingredient has independently authored metric and imperial quantities. Switching units selects that recipe specification, then scales it by servings. Ounces use familiar fractions such as ¾ oz and 1½ oz; small pours use teaspoons. The two specifications are practical recipe proportions, not exact conversions. Mint leaves and bitters dashes scale without volume conversion. Multi-serving recipes advise mixing in small batches.
 
 The ingredient parser uses explicit names and aliases. It does not infer brands or parse arbitrary conversation. For example, “limes” matches lime juice, while “rum” asks for a more specific entry such as “white rum.” Recipe variants are hand-authored; there is no generated substitution engine.
 
@@ -38,8 +38,8 @@ The ingredient parser uses explicit names and aliases. It does not infer brands 
 - `Sources/PourCore/`: catalog, ingredient parser, measurements, and recommendation engine. This Swift package can be tested without an iOS simulator.
 - `Tests/PourCoreTests/`: catalog integrity, matching, exhaustive purchase-ranking checks, parsing, scaling, and variations.
 - `PourUITests/`: an iPhone flow covering ingredient entry, recommendations, serving changes, favorites, persistence across relaunch, and adding a purchase. UI tests use an isolated preferences suite.
-- `scripts/generate-icon.mjs`: optional, dependency-free icon generator; the generated icon is already included.
-- `Pour/Assets.xcassets/Cocktails/`: one painted illustration per recipe, generated with the built-in image generation tool and bundled for offline use. The shared `CocktailArt` view displays these in recipe rows, featured cards, and detail screens.
+- `docs/app-icon-prompt.md`: prompt for the ChatGPT-generated Clover Club icon, bundled as an opaque 1024 × 1024 PNG.
+- `Pour/Assets.xcassets/Cocktails/`: one painted illustration per recipe, generated with the built-in image generation tool and bundled for offline use. The shared `CocktailArt` view displays these without edge fading. Each artwork container uses a color sampled from that illustration’s paper border. Run `swift scripts/generate-paper-colors.swift` after replacing cocktail artwork to refresh those asset colors.
 - `docs/artwork-prompts.json`: the shared art direction and individual drink prompts. Clover Club is the style reference for the rest of the collection.
 
 ## Verify
@@ -61,4 +61,4 @@ This is an initial working app. App Store signing, distribution, cloud sync, and
 
 ## Simulator previews
 
-Captured from the passing iPhone 17 Pro UI test: [recommendations](docs/screenshots/for-you.png), [scaled recipe](docs/screenshots/recipe.png), and [shopping suggestions](docs/screenshots/shopping.png).
+Captured from the passing iPhone 17 Pro UI test: [recommendations](docs/screenshots/for-you.png), [scaled recipe](docs/screenshots/recipe.png), [ounce measurements](docs/screenshots/recipe-ounces.png), and [shopping suggestions](docs/screenshots/shopping.png).

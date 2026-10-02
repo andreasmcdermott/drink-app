@@ -18,7 +18,7 @@
 
 ### Make recipes easier to use while mixing
 
-- [ ] Display familiar ounce fractions, such as ¾ oz, while preserving accurate measurements and serving scaling.
+- [x] Author separate imperial recipe amounts, display familiar ounce fractions such as ¾ oz, and scale either specification by servings.
 - [ ] Add a large-text, step-by-step mixing mode.
 - [ ] Keep the screen awake while mixing mode is active, restoring normal behavior when it ends.
 

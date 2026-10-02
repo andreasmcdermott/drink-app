@@ -7,6 +7,7 @@ enum Palette {
     static let ink = Color(hex: 0x263B31)
     static let secondary = Color(hex: 0x677065)
     static let gold = Color(hex: 0xCDA766)
+    static func paper(_ recipe: Recipe) -> Color { Color("paper-\(recipe.id)") }
     static func drink(_ name: String) -> Color {
         Color(hex: ["amber": 0xD19239, "red": 0xB94530, "lime": 0xCCD59A,
                     "lemon": 0xE5CA76, "clear": 0xDAE7D5, "orange": 0xEE963E,
@@ -71,18 +72,8 @@ struct CocktailArt: View {
         Image("cocktail-\(recipe.id)")
             .resizable()
             .scaledToFit()
-            .mask {
-                // Fade only the paper margins; keep the glass and garnish opaque.
-                LinearGradient(stops: paperEdgeStops, startPoint: .leading, endPoint: .trailing)
-                    .mask(LinearGradient(stops: paperEdgeStops, startPoint: .top, endPoint: .bottom))
-            }
             .frame(maxWidth: .infinity)
             .accessibilityHidden(true)
-    }
-
-    private var paperEdgeStops: [Gradient.Stop] {
-        [.init(color: .clear, location: 0), .init(color: .white, location: 0.12),
-         .init(color: .white, location: 0.88), .init(color: .clear, location: 1)]
     }
 }
 
@@ -93,7 +84,8 @@ struct RecipeRow: View {
         NavigationLink { RecipeDetailView(recipe: recipe) } label: {
             HStack(spacing: 16) {
                 CocktailArt(recipe: recipe).frame(width: 78, height: 86)
-                    .background(Palette.drink(recipe.color).opacity(0.13), in: RoundedRectangle(cornerRadius: 16))
+                    .background(Palette.paper(recipe))
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
                 VStack(alignment: .leading, spacing: 7) {
                     Text(recipe.name).font(.system(.headline, design: .serif)).foregroundStyle(Palette.ink)
                     Text("\(recipe.family) · \(recipe.ingredients.count) ingredients").font(.caption).foregroundStyle(Palette.secondary)

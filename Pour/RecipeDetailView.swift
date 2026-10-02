@@ -14,7 +14,8 @@ struct RecipeDetailView: View {
         @Bindable var bar = bar
         Screen {
             CocktailArt(recipe: recipe).frame(height: 230).frame(maxWidth: .infinity)
-                .background(Palette.drink(recipe.color).opacity(0.16), in: RoundedRectangle(cornerRadius: 28))
+                .background(Palette.paper(recipe))
+                .clipShape(RoundedRectangle(cornerRadius: 28))
             VStack(alignment: .leading, spacing: 12) {
                 Eyebrow(text: "\(recipe.family) / \(recipe.glass) glass")
                 Text(recipe.name).font(.system(.largeTitle, design: .serif))
@@ -49,7 +50,7 @@ struct RecipeDetailView: View {
                         .font(.footnote).foregroundStyle(Palette.secondary)
                 }
                 if bar.unit == .oz {
-                    Text("US fluid ounces; conversions are rounded to two decimal places.").font(.caption).foregroundStyle(Palette.secondary)
+                    Text("Ounce recipes use their own proportions. Small pours are shown in teaspoons.").font(.caption).foregroundStyle(Palette.secondary)
                 }
             }.padding(20).background(.white.opacity(0.8), in: RoundedRectangle(cornerRadius: 22))
             if !recipe.variations.isEmpty {

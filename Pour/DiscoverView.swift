@@ -30,7 +30,7 @@ struct DiscoverView: View {
                     Text("Choose your spirits, mixers, and extras. We’ll find the recipes that fit.")
                         .font(.subheadline).foregroundStyle(Palette.secondary).multilineTextAlignment(.center)
                     Button("Add my ingredients", action: openBar).buttonStyle(PrimaryButton()).padding(.top, 8)
-                }.padding(24).background(Color(hex: 0xE9EBDD), in: RoundedRectangle(cornerRadius: 28))
+                }.padding(24).background(Palette.paper(Catalog.recipes[0]), in: RoundedRectangle(cornerRadius: 28))
             } else if let featured = bar.available.first {
                 NavigationLink { RecipeDetailView(recipe: featured) } label: {
                     VStack(alignment: .leading, spacing: 12) {
@@ -39,7 +39,7 @@ struct DiscoverView: View {
                         Text(featured.name).font(.system(.largeTitle, design: .serif))
                         Text(featured.subtitle).font(.subheadline).foregroundStyle(Palette.secondary)
                         Pill(text: "Everything’s on your shelf")
-                    }.padding(24).background(Color(hex: 0xE9EBDD), in: RoundedRectangle(cornerRadius: 28))
+                    }.padding(24).background(Palette.paper(featured), in: RoundedRectangle(cornerRadius: 28))
                 }.buttonStyle(.plain)
             } else {
                 ContentUnavailableView("Your first drink is close", systemImage: "wineglass", description: Text("Add more ingredients to My bar, or see Add a little for useful purchases."))

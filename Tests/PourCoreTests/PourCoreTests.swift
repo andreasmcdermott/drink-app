@@ -46,12 +46,42 @@ final class PourCoreTests: XCTestCase {
         XCTAssertEqual(pair.unlockedRecipes.map(\.id), ["negroni"])
     }
 
-    func testScalingAndUSFluidOunceConversion() {
-        XCTAssertEqual(RecipeIngredient("gin", 60).formatted(servings: 2, unit: .ml), "120 ml")
-        XCTAssertEqual(RecipeIngredient("gin", 29.5735295625).formatted(servings: 2, unit: .oz), "2 oz")
+    func testIndependentImperialSpecificationsAndScaling() throws {
+        let gin = RecipeIngredient("gin", 50, imperial: .oz(2))
+        XCTAssertEqual(gin.formatted(servings: 1, unit: .oz), "2 oz")
+        XCTAssertEqual(gin.formatted(servings: 2, unit: .oz), "4 oz")
+        XCTAssertEqual(gin.formatted(servings: 2, unit: .ml), "100 ml")
+        let lime = RecipeIngredient("lime", 25, imperial: .oz(0.75))
+        for (servings, expected) in [(1, "¾ oz"), (2, "1½ oz"), (3, "2¼ oz"), (12, "9 oz")] {
+            XCTAssertEqual(lime.formatted(servings: servings, unit: .oz), expected)
+        }
+        XCTAssertEqual(lime.formatted(servings: 0, unit: .oz), "¾ oz")
+        XCTAssertEqual(RecipeIngredient("syrup", 7.5, imperial: .oz(0.25)).formatted(servings: 3, unit: .ml), "22.5 ml")
         XCTAssertEqual(RecipeIngredient("angostura", 2, .dash).formatted(servings: 2, unit: .oz), "4 dashes")
+        XCTAssertEqual(RecipeIngredient("angostura", 1, .dash).formatted(servings: 1, unit: .oz), "1 dash")
         XCTAssertEqual(RecipeIngredient("mint", 6, .leaf).formatted(servings: 3, unit: .ml), "18 leaves")
-        XCTAssertEqual(RecipeIngredient("syrup", 7.5).formatted(servings: 3, unit: .ml), "22.5 ml")
+        XCTAssertEqual(RecipeIngredient("fernet", 2.5, imperial: .tsp(0.5)).formatted(servings: 3, unit: .oz), "1½ tsp")
+    }
+
+    func testCatalogOuncesUsePracticalMeasuresIncludingVariations() throws {
+        for recipe in Catalog.recipes {
+            for ingredients in [recipe.ingredients] + recipe.variations.map(\.ingredients) {
+                for ingredient in ingredients where ingredient.measure == nil {
+                    let imperial = try XCTUnwrap(ingredient.imperial, recipe.name)
+                    XCTAssertGreaterThan(imperial.amount, 0)
+                    XCTAssertEqual(imperial.amount * 4, (imperial.amount * 4).rounded(), recipe.name)
+                    for servings in 1...12 {
+                        XCTAssertFalse(ingredient.formatted(servings: servings, unit: .oz).contains("."), recipe.name)
+                    }
+                }
+            }
+        }
+        let negroni = try XCTUnwrap(Catalog.recipes.first { $0.id == "negroni" })
+        XCTAssertEqual(negroni.ingredients.map { $0.formatted(servings: 1, unit: .oz) }, ["1 oz", "1 oz", "1 oz"])
+        let sweeter = try XCTUnwrap(Catalog.recipes.first { $0.id == "old-fashioned" }?.variations.first)
+        let syrup = try XCTUnwrap(sweeter.ingredients.first { $0.ingredientID == "syrup" })
+        XCTAssertEqual(syrup.formatted(servings: 1, unit: .oz), "2½ tsp")
+        XCTAssertEqual(syrup.formatted(servings: 2, unit: .oz), "5 tsp")
     }
 
     func testParserResolvesAliasesAndReportsAmbiguityWithoutGuessing() {

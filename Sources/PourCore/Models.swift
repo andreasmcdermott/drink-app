@@ -16,30 +16,72 @@ public struct Ingredient: Identifiable, Hashable, Sendable {
     }
 }
 
-public enum Measure: String, Sendable { case ml, dash, leaf, teaspoon }
+/// Counts keep the same measure in both unit systems.
+public enum Measure: String, Sendable { case dash, leaf, teaspoon }
 public enum DisplayUnit: String, CaseIterable, Sendable { case ml = "ml", oz = "oz" }
+
+/// An authored imperial recipe quantity, independent of its metric specification.
+public enum ImperialAmount: Hashable, Sendable {
+    case oz(Double)
+    case tsp(Double)
+
+    public var amount: Double {
+        switch self { case .oz(let value), .tsp(let value): return value }
+    }
+    public var label: String {
+        switch self { case .oz: return "oz"; case .tsp: return "tsp" }
+    }
+}
 
 public struct RecipeIngredient: Identifiable, Hashable, Sendable {
     public var id: String { ingredientID }
     public let ingredientID: String
+    /// Milliliters for volumes, otherwise the number of dashes, leaves or teaspoons.
     public let amount: Double
-    public let measure: Measure
+    public let measure: Measure?
+    public let imperial: ImperialAmount?
 
-    public init(_ ingredientID: String, _ amount: Double, _ measure: Measure = .ml) {
-        self.ingredientID = ingredientID; self.amount = amount; self.measure = measure
+    public init(_ ingredientID: String, _ milliliters: Double, imperial: ImperialAmount) {
+        self.ingredientID = ingredientID
+        self.amount = milliliters
+        self.measure = nil
+        self.imperial = imperial
+    }
+
+    public init(_ ingredientID: String, _ amount: Double, _ measure: Measure) {
+        self.ingredientID = ingredientID
+        self.amount = amount
+        self.measure = measure
+        self.imperial = nil
     }
 
     public func formatted(servings: Int, unit: DisplayUnit) -> String {
-        let total = amount * Double(max(1, servings))
-        let value = measure == .ml && unit == .oz ? total / 29.5735295625 : total
+        let count = Double(max(1, servings))
+        if unit == .oz, let imperial {
+            return "\(Self.fraction(imperial.amount * count)) \(imperial.label)"
+        }
+        let total = amount * count
         let label: String
         switch measure {
-        case .ml: label = unit.rawValue
+        case nil: label = "ml"
         case .dash: label = total == 1 ? "dash" : "dashes"
         case .leaf: label = total == 1 ? "leaf" : "leaves"
         case .teaspoon: label = "tsp"
         }
-        return "\(value.formatted(.number.precision(.fractionLength(0...2)))) \(label)"
+        let value = measure == .teaspoon ? Self.fraction(total) : total.formatted(.number.precision(.fractionLength(0...2)))
+        return "\(value) \(label)"
+    }
+
+    private static func fraction(_ value: Double) -> String {
+        let eighths = (value * 8).rounded()
+        // Preserve an unusual authored quantity rather than silently rounding it.
+        guard abs(value * 8 - eighths) < 0.000001 else {
+            return value.formatted(.number.precision(.fractionLength(0...2)))
+        }
+        let whole = Int(eighths) / 8
+        let remainder = Int(eighths) % 8
+        let glyphs = ["", "⅛", "¼", "⅜", "½", "⅝", "¾", "⅞"]
+        return (whole > 0 || remainder == 0 ? String(whole) : "") + glyphs[remainder]
     }
 }
 
