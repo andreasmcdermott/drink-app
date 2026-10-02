@@ -80,8 +80,8 @@ final class PourCoreTests: XCTestCase {
         XCTAssertEqual(negroni.ingredients.map { $0.formatted(servings: 1, unit: .oz) }, ["1 oz", "1 oz", "1 oz"])
         let sweeter = try XCTUnwrap(Catalog.recipes.first { $0.id == "old-fashioned" }?.variations.first)
         let syrup = try XCTUnwrap(sweeter.ingredients.first { $0.ingredientID == "syrup" })
-        XCTAssertEqual(syrup.formatted(servings: 1, unit: .oz), "2½ tsp")
-        XCTAssertEqual(syrup.formatted(servings: 2, unit: .oz), "5 tsp")
+        XCTAssertEqual(syrup.formatted(servings: 1, unit: .oz), "½ oz")
+        XCTAssertEqual(syrup.formatted(servings: 2, unit: .oz), "1 oz")
     }
 
     func testCuratedWhiskeySwapsUnlockRecipesAndPreferOriginals() throws {
@@ -144,12 +144,29 @@ final class PourCoreTests: XCTestCase {
         let recipe = try XCTUnwrap(Catalog.recipes.first { $0.id == "old-fashioned" })
         let sweeter = try XCTUnwrap(recipe.variations.first { $0.id == "sweeter" })
         XCTAssertEqual(RecipeAdjustments.instructions(from: recipe.ingredients, to: sweeter.ingredients, servings: 1, unit: .oz),
-                       ["Use 2½ tsp simple syrup instead of ¼ oz."])
+                       ["Use ½ oz simple syrup instead of ¼ oz."])
         XCTAssertEqual(RecipeAdjustments.instructions(from: recipe.ingredients, to: sweeter.ingredients, servings: 2, unit: .ml),
                        ["Use 25 ml simple syrup instead of 15 ml."])
         XCTAssertEqual(RecipeAdjustments.instructions(from: recipe.ingredients, to: sweeter.ingredients, servings: 2, unit: .oz),
-                       ["Use 5 tsp simple syrup instead of ½ oz."])
+                       ["Use 1 oz simple syrup instead of ½ oz."])
         XCTAssertTrue(RecipeAdjustments.instructions(from: recipe.ingredients, to: recipe.ingredients, servings: 1, unit: .oz).isEmpty)
+    }
+
+    func testVariationsKeepTheSameImperialUnitAsTheOriginalIngredient() throws {
+        for recipe in Catalog.recipes {
+            for variation in recipe.variations {
+                for ingredient in variation.ingredients {
+                    if let original = recipe.ingredients.first(where: { $0.ingredientID == ingredient.ingredientID }) {
+                        XCTAssertEqual(ingredient.imperial?.label, original.imperial?.label,
+                                       "\(recipe.name): \(variation.name), \(ingredient.ingredientID)")
+                    }
+                }
+            }
+        }
+        let daiquiri = try XCTUnwrap(Catalog.recipes.first { $0.id == "daiquiri" })
+        let dry = try XCTUnwrap(daiquiri.variations.first { $0.id == "dry" })
+        XCTAssertEqual(RecipeAdjustments.instructions(from: daiquiri.ingredients, to: dry.ingredients, servings: 1, unit: .oz),
+                       ["Use ¼ oz simple syrup instead of ½ oz."])
     }
 
     func testMixingTipsDescribeSwapsRelativeToDisplayedRecipe() throws {

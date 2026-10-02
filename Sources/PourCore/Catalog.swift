@@ -55,7 +55,7 @@ public enum Catalog {
                [.init("bourbon", 60, imperial: .oz(2)), .init("syrup", 7.5, imperial: .oz(0.25)), .init("angostura", 2, .dash)],
                ["Add bourbon, simple syrup, and bitters to a rocks glass.", "Add a large ice cube and stir for 20–30 seconds."],
                garnish: "Express an orange peel over each glass.", variations: [
-                Variation(id: "sweeter", name: "A little sweeter", note: "Use the increased syrup amount below for a sweeter drink. Taste before adding more.", ingredients: [.init("bourbon", 60, imperial: .oz(2)), .init("syrup", 12.5, imperial: .tsp(2.5)), .init("angostura", 2, .dash)]),
+                Variation(id: "sweeter", name: "A little sweeter", note: "Use the increased syrup amount below for a sweeter drink. Taste before adding more.", ingredients: [.init("bourbon", 60, imperial: .oz(2)), .init("syrup", 12.5, imperial: .oz(0.5)), .init("angostura", 2, .dash)]),
                 Variation(id: "orange", name: "Orange bitters", note: "Swap aromatic bitters for orange bitters for a brighter, less spicy drink.", ingredients: [.init("bourbon", 60, imperial: .oz(2)), .init("syrup", 7.5, imperial: .oz(0.25)), .init("orange-bitters", 2, .dash)]),
                 Variation(id: "rye", name: "Rye Old Fashioned", note: "Use rye whiskey instead of bourbon for a drier, spicier drink.", ingredients: [.init("rye", 60, imperial: .oz(2)), .init("syrup", 7.5, imperial: .oz(0.25)), .init("angostura", 2, .dash)], steps: ["Add rye whiskey, simple syrup, and bitters to a rocks glass.", "Add a large ice cube and stir for 20–30 seconds."])]),
         recipe("negroni", "Negroni", "Bitter, bold, beautifully balanced.", "Gin", "Rocks", "red",
@@ -67,7 +67,7 @@ public enum Catalog {
                 Variation(id: "sweeter", name: "Soften the citrus", note: "Add the agave syrup listed below to round out the lime.", ingredients: [.init("tequila", 50, imperial: .oz(2)), .init("triple-sec", 25, imperial: .oz(1)), .init("lime", 25, imperial: .oz(1)), .init("agave", 5, imperial: .tsp(1))])]),
         recipe("daiquiri", "Daiquiri", "Three ingredients. Nothing to hide.", "Rum", "Coupe", "lime",
                [.init("rum", 60, imperial: .oz(2)), .init("lime", 25, imperial: .oz(0.75)), .init("syrup", 15, imperial: .oz(0.5))], shake, variations: [
-                Variation(id: "dry", name: "A touch drier", note: "Use the reduced syrup amount below for a sharper finish.", ingredients: [.init("rum", 60, imperial: .oz(2)), .init("lime", 25, imperial: .oz(0.75)), .init("syrup", 10, imperial: .tsp(2))])]),
+                Variation(id: "dry", name: "A touch drier", note: "Use the reduced syrup amount below for a sharper finish.", ingredients: [.init("rum", 60, imperial: .oz(2)), .init("lime", 25, imperial: .oz(0.75)), .init("syrup", 10, imperial: .oz(0.25))])]),
         recipe("whiskey-sour", "Whiskey Sour", "A bright, silky whiskey classic.", "Whiskey", "Rocks", "amber",
                [.init("bourbon", 60, imperial: .oz(2)), .init("lemon", 30, imperial: .oz(1)), .init("syrup", 20, imperial: .oz(0.75))],
                ["Add all ingredients to a shaker with ice.", "Shake hard for 10–15 seconds.", "Strain into a rocks glass over fresh ice."], garnish: "Add a lemon slice or cocktail cherry. This version is made without egg white.", variations: [

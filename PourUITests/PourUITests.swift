@@ -88,7 +88,7 @@ final class PourUITests: XCTestCase {
             app.swipeDown()
         }
         XCTAssertTrue(originalTip.isHittable)
-        XCTAssertTrue(app.staticTexts["Use 5 tsp simple syrup instead of ½ oz."].exists)
+        XCTAssertTrue(app.staticTexts["Use 1 oz simple syrup instead of ½ oz."].exists)
         XCTAssertFalse(app.buttons["variation-original"].exists)
         capture("Simple mixing tips", app)
         // Reading the tips leaves the recommended rye recipe intact.
