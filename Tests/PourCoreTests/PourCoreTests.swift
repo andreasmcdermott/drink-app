@@ -11,7 +11,7 @@ final class PourCoreTests: XCTestCase {
     }
 
     func testShoppingMatchesExhaustiveSearchAndNeverCountsExistingRecipes() {
-        for pantry: Set<String> in [[], ["gin", "lime", "syrup"], ["bourbon", "campari"], Set(Catalog.ingredients.map(\.id))] {
+        for pantry: Set<String> in [[], ["gin", "lime", "syrup"], ["bourbon", "campari"], ["rye", "syrup"], ["gin", "lemon", "raspberry-syrup"], Set(Catalog.ingredients.map(\.id))] {
             for budget in 1...2 {
                 let suggestions = RecommendationEngine.shopping(in: Catalog.recipes, pantry: pantry, budget: budget)
                 let existing = Set(RecommendationEngine.available(in: Catalog.recipes, pantry: pantry).map(\.id))
@@ -82,6 +82,93 @@ final class PourCoreTests: XCTestCase {
         let syrup = try XCTUnwrap(sweeter.ingredients.first { $0.ingredientID == "syrup" })
         XCTAssertEqual(syrup.formatted(servings: 1, unit: .oz), "2½ tsp")
         XCTAssertEqual(syrup.formatted(servings: 2, unit: .oz), "5 tsp")
+    }
+
+    func testCuratedWhiskeySwapsUnlockRecipesAndPreferOriginals() throws {
+        let whiskeyRecipes = Catalog.recipes.filter { $0.family == "Whiskey" }
+        let pantry: Set<String> = ["rye", "syrup", "angostura", "lemon", "campari", "sweet-vermouth"]
+        let available = RecommendationEngine.available(in: whiskeyRecipes, pantry: pantry)
+        XCTAssertEqual(Set(available.map(\.id)), ["old-fashioned", "whiskey-sour", "boulevardier", "manhattan"])
+        for id in ["old-fashioned", "whiskey-sour", "boulevardier"] {
+            let recipe = try XCTUnwrap(available.first { $0.id == id })
+            let match = RecommendationEngine.bestMatch(for: recipe, pantry: pantry)
+            XCTAssertEqual(match.variation?.id, "rye")
+            XCTAssertTrue(match.missing(from: pantry).isEmpty)
+            XCTAssertTrue(match.ingredients.contains { $0.ingredientID == "rye" })
+            XCTAssertFalse(match.ingredients.contains { $0.ingredientID == "bourbon" })
+            XCTAssertNil(RecommendationEngine.bestMatch(for: recipe, pantry: pantry.union(["bourbon"])).variation)
+        }
+        let oldFashioned = try XCTUnwrap(available.first { $0.id == "old-fashioned" })
+        let match = RecommendationEngine.bestMatch(for: oldFashioned, pantry: pantry)
+        XCTAssertTrue(try XCTUnwrap(match.variation?.steps?.first).contains("rye whiskey"))
+        let rye = try XCTUnwrap(match.ingredients.first { $0.ingredientID == "rye" })
+        XCTAssertEqual(rye.formatted(servings: 2, unit: .oz), "4 oz")
+        XCTAssertEqual(rye.formatted(servings: 2, unit: .ml), "120 ml")
+        let manhattan = try XCTUnwrap(available.first { $0.id == "manhattan" })
+        XCTAssertEqual(RecommendationEngine.bestMatch(for: manhattan, pantry: ["bourbon", "sweet-vermouth", "angostura"]).variation?.id, "bourbon")
+    }
+
+    func testOnlyCompleteCuratedVariationsAreSuggested() throws {
+        let recipe = try XCTUnwrap(Catalog.recipes.first { $0.id == "old-fashioned" })
+        XCTAssertTrue(RecommendationEngine.available(in: [recipe], pantry: ["gin", "syrup", "angostura"]).isEmpty)
+        // Rye and orange bitters are separate curated versions, not a combined recipe.
+        XCTAssertTrue(RecommendationEngine.available(in: [recipe], pantry: ["rye", "syrup", "orange-bitters"]).isEmpty)
+        let closest = RecommendationEngine.bestMatch(for: recipe, pantry: ["rye", "syrup"])
+        XCTAssertEqual(closest.variation?.id, "rye")
+        XCTAssertEqual(closest.missing(from: ["rye", "syrup"]), ["angostura"])
+        XCTAssertEqual(RecommendationEngine.bestMatch(for: recipe, pantry: ["bourbon", "syrup", "orange-bitters"]).variation?.id, "orange")
+        let clover = try XCTUnwrap(Catalog.recipes.first { $0.id == "clover-club" })
+        let eggFree: Set<String> = ["gin", "lemon", "raspberry-syrup", "aquafaba"]
+        XCTAssertEqual(RecommendationEngine.available(in: [clover], pantry: eggFree).map(\.id), ["clover-club"])
+        XCTAssertEqual(RecommendationEngine.bestMatch(for: clover, pantry: eggFree).variation?.id, "egg-free")
+    }
+
+    func testShoppingUnlocksVariationsWithoutDoubleCounting() throws {
+        let recipes = Catalog.recipes.filter { ["old-fashioned", "whiskey-sour"].contains($0.id) }
+        let pantry: Set<String> = ["rye", "syrup"]
+        let singles = RecommendationEngine.shopping(in: recipes, pantry: pantry, budget: 1)
+        let bitters = try XCTUnwrap(singles.first { $0.ingredientIDs == ["angostura"] })
+        XCTAssertEqual(bitters.unlockedRecipes.map(\.id), ["old-fashioned"])
+        let pairs = RecommendationEngine.shopping(in: recipes, pantry: pantry, budget: 2)
+        let pair = try XCTUnwrap(pairs.first { $0.ingredientIDs == ["angostura", "lemon"] })
+        XCTAssertEqual(Set(pair.unlockedRecipes.map(\.id)), ["old-fashioned", "whiskey-sour"])
+        let oldFashioned = try XCTUnwrap(recipes.first { $0.id == "old-fashioned" })
+        XCTAssertTrue(RecommendationEngine.shopping(in: [oldFashioned], pantry: pantry.union(["angostura"]), budget: 2).isEmpty)
+        let bothSpirits: Set<String> = ["bourbon", "rye", "syrup"]
+        let purchase = try XCTUnwrap(RecommendationEngine.shopping(in: [oldFashioned], pantry: bothSpirits, budget: 1).first { $0.ingredientIDs == ["angostura"] })
+        XCTAssertEqual(purchase.unlockedRecipes.count, 1)
+        XCTAssertNil(RecommendationEngine.bestMatch(for: oldFashioned, pantry: bothSpirits.union(purchase.ingredientIDs)).variation)
+    }
+
+    func testMixingTipsIncludeAmountsForSelectedUnitsAndServings() throws {
+        let recipe = try XCTUnwrap(Catalog.recipes.first { $0.id == "old-fashioned" })
+        let sweeter = try XCTUnwrap(recipe.variations.first { $0.id == "sweeter" })
+        XCTAssertEqual(RecipeAdjustments.instructions(from: recipe.ingredients, to: sweeter.ingredients, servings: 1, unit: .oz),
+                       ["Use 2½ tsp simple syrup instead of ¼ oz."])
+        XCTAssertEqual(RecipeAdjustments.instructions(from: recipe.ingredients, to: sweeter.ingredients, servings: 2, unit: .ml),
+                       ["Use 25 ml simple syrup instead of 15 ml."])
+        XCTAssertEqual(RecipeAdjustments.instructions(from: recipe.ingredients, to: sweeter.ingredients, servings: 2, unit: .oz),
+                       ["Use 5 tsp simple syrup instead of ½ oz."])
+        XCTAssertTrue(RecipeAdjustments.instructions(from: recipe.ingredients, to: recipe.ingredients, servings: 1, unit: .oz).isEmpty)
+    }
+
+    func testMixingTipsDescribeSwapsRelativeToDisplayedRecipe() throws {
+        let recipe = try XCTUnwrap(Catalog.recipes.first { $0.id == "old-fashioned" })
+        let rye = try XCTUnwrap(recipe.variations.first { $0.id == "rye" })
+        XCTAssertEqual(RecipeAdjustments.instructions(from: rye.ingredients, to: recipe.ingredients, servings: 2, unit: .oz),
+                       ["Use 4 oz bourbon instead of rye whiskey."])
+        let sweeter = try XCTUnwrap(recipe.variations.first { $0.id == "sweeter" })
+        XCTAssertEqual(RecipeAdjustments.instructions(from: rye.ingredients, to: sweeter.ingredients, servings: 1, unit: .ml),
+                       ["Use 60 ml bourbon instead of rye whiskey.", "Use 12.5 ml simple syrup instead of 7.5 ml."])
+    }
+
+    func testMixingTipsDescribeAdditionsAndRemovals() throws {
+        let margarita = try XCTUnwrap(Catalog.recipes.first { $0.id == "margarita" })
+        let softer = try XCTUnwrap(margarita.variations.first)
+        XCTAssertEqual(RecipeAdjustments.instructions(from: margarita.ingredients, to: softer.ingredients, servings: 2, unit: .oz),
+                       ["Add 2 tsp agave syrup."])
+        XCTAssertEqual(RecipeAdjustments.instructions(from: softer.ingredients, to: margarita.ingredients, servings: 1, unit: .ml),
+                       ["Leave out the agave syrup."])
     }
 
     func testParserResolvesAliasesAndReportsAmbiguityWithoutGuessing() {

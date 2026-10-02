@@ -53,6 +53,59 @@ final class PourUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["You have 4 ingredients and 2 drinks ready to make."].waitForExistence(timeout: 5))
     }
 
+    func testSuggestedRyeSwapShowsStaticMixingTips() {
+        let app = XCUIApplication()
+        app.launchArguments = ["--ui-testing", "--reset-test-data"]
+        app.launch()
+        XCTAssertTrue(app.buttons["Add my ingredients"].waitForExistence(timeout: 10))
+        app.buttons["Add my ingredients"].tap()
+        app.buttons["Type a list of ingredients"].tap()
+        let entry = app.textViews["Ingredient list"]
+        XCTAssertTrue(entry.waitForExistence(timeout: 5))
+        entry.tap()
+        entry.typeText("rye, simple syrup, angostura")
+        app.buttons["Add 3 ingredients"].tap()
+        app.tabBars.buttons["For you"].tap()
+        XCTAssertTrue(app.staticTexts["You have 3 ingredients and 1 drink ready to make."].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["Rye Old Fashioned"].firstMatch.exists)
+        capture("Suggested rye substitution", app)
+        app.buttons.containing(.staticText, identifier: "Old Fashioned").firstMatch.tap()
+        XCTAssertTrue(app.staticTexts["Rye whiskey"].waitForExistence(timeout: 5))
+        app.segmentedControls.buttons["oz"].tap()
+        let stepper = app.steppers["servings"]
+        if !stepper.isHittable { app.swipeUp() }
+        stepper.buttons["servings-Increment"].tap()
+        XCTAssertTrue(app.staticTexts["4 oz"].exists)
+        capture("Rye recipe quantities", app)
+        for _ in 0..<4 {
+            if app.staticTexts["Add rye whiskey, simple syrup, and bitters to a rocks glass."].isHittable { break }
+            app.swipeUp()
+        }
+        XCTAssertTrue(app.staticTexts["Add rye whiskey, simple syrup, and bitters to a rocks glass."].exists)
+        let originalTip = app.staticTexts["Use 4 oz bourbon instead of rye whiskey."]
+        for _ in 0..<4 {
+            if originalTip.isHittable { break }
+            app.swipeDown()
+        }
+        XCTAssertTrue(originalTip.isHittable)
+        XCTAssertTrue(app.staticTexts["Use 5 tsp simple syrup instead of ½ oz."].exists)
+        XCTAssertFalse(app.buttons["variation-original"].exists)
+        capture("Simple mixing tips", app)
+        // Reading the tips leaves the recommended rye recipe intact.
+        for _ in 0..<4 {
+            if app.staticTexts["Rye whiskey"].isHittable { break }
+            app.swipeDown()
+        }
+        XCTAssertTrue(app.staticTexts["Rye whiskey"].exists)
+        XCTAssertFalse(app.staticTexts["Bourbon"].exists)
+        app.tabBars.buttons["Recipes"].tap()
+        app.switches["Ready to mix"].tap()
+        XCTAssertTrue(app.buttons["recipe-old-fashioned"].exists)
+        XCTAssertTrue(app.staticTexts["Rye Old Fashioned"].exists)
+        app.buttons["recipe-old-fashioned"].tap()
+        XCTAssertTrue(app.staticTexts["Rye whiskey"].waitForExistence(timeout: 5))
+    }
+
     private func capture(_ name: String, _ app: XCUIApplication) {
         let attachment = XCTAttachment(screenshot: app.screenshot())
         attachment.name = name

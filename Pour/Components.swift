@@ -80,22 +80,26 @@ struct CocktailArt: View {
 struct RecipeRow: View {
     @Environment(BarStore.self) private var bar
     let recipe: Recipe
+    private var match: RecipeMatch { bar.match(for: recipe) }
     var body: some View {
-        NavigationLink { RecipeDetailView(recipe: recipe) } label: {
+        NavigationLink { RecipeDetailView(recipe: recipe, initialVariationID: match.variation?.id) } label: {
             HStack(spacing: 16) {
                 CocktailArt(recipe: recipe).frame(width: 78, height: 86)
                     .background(Palette.paper(recipe))
                         .clipShape(RoundedRectangle(cornerRadius: 16))
                 VStack(alignment: .leading, spacing: 7) {
                     Text(recipe.name).font(.system(.headline, design: .serif)).foregroundStyle(Palette.ink)
-                    Text("\(recipe.family) · \(recipe.ingredients.count) ingredients").font(.caption).foregroundStyle(Palette.secondary)
-                    let missing = recipe.missing(from: bar.pantry).count
+                    Text("\(recipe.family) · \(match.ingredients.count) ingredients").font(.caption).foregroundStyle(Palette.secondary)
+                    if let variation = match.variation {
+                        Text(variation.name).font(.caption.weight(.medium)).foregroundStyle(Palette.green)
+                    }
+                    let missing = match.missing(from: bar.pantry).count
                     Text(missing == 0 ? "Ready to mix" : "\(missing) ingredient\(missing == 1 ? "" : "s") missing")
                         .font(.caption.weight(.medium)).foregroundStyle(missing == 0 ? Palette.green : Palette.secondary)
                 }
                 Spacer(minLength: 0)
                 Image(systemName: "chevron.right").font(.caption.weight(.semibold)).foregroundStyle(Palette.secondary)
             }.padding(12).background(.white.opacity(0.75), in: RoundedRectangle(cornerRadius: 22))
-        }.buttonStyle(.plain)
+        }.buttonStyle(.plain).accessibilityIdentifier("recipe-\(recipe.id)")
     }
 }

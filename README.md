@@ -16,7 +16,7 @@ To run on your iPhone, choose your Apple development team under **Signing & Capa
 - **My bar:** a searchable ingredient shelf. Type a comma-separated list, or dictate using the iPhone keyboard microphone. Recognized ingredients are shown before adding; ambiguous or unknown names are reported.
 - **Recipes:** 38 recipes, including 19 gin drinks, with ingredients, instructions, optional garnishes, search, spirit filters, and favorites.
 - **Add a little:** ranked purchases of one or up to two ingredients, with links to every newly available drink. “I bought this” adds the purchase to your shelf.
-- **Recipe details:** 1–12 servings, milliliters or US fluid ounces, and curated variations for selected recipes. Changing a variation updates the quantities and missing-ingredient check.
+- **Recipe details:** 1–12 servings, milliliters or US fluid ounces, and curated variations for selected recipes. “Make it your own” offers plain-text adjustments with amounts in the chosen units and serving count.
 
 The ingredient shelf, favorites, and measurement preference persist locally. The app works offline and does not send ingredient data anywhere.
 
@@ -24,13 +24,13 @@ The gin collection includes Clover Club, White Lady, Gin & It, French 75, Aviati
 
 ## Recommendation rules
 
-A recipe is available when every required ingredient is on the shelf. Ice and water are assumed; optional garnishes never block a match. Possession is tracked, not remaining bottle volume.
+A recipe is available when every required ingredient for its original version or a curated variation is on the shelf. Recommendations prefer the version needing the fewest missing ingredients, with the original winning ties. Ice and water are assumed; optional garnishes never block a match. Possession is tracked, not remaining bottle volume.
 
-Shopping recommendations evaluate every useful one- and two-ingredient purchase. They count only original recipes that become newly available, rank by that count, prefer fewer purchases on ties, and discard pairs if either ingredient contributes no additional recipes. Variations are checked on the recipe screen but do not inflate shopping counts. Prices and bottle sizes are not modeled.
+Shopping recommendations evaluate every useful one- and two-ingredient purchase. They count each newly available drink once across its original and curated variations, rank by that count, prefer fewer purchases on ties, and discard pairs if either ingredient contributes no additional recipes. Drinks already possible with a substitution are excluded. Prices and bottle sizes are not modeled.
 
 Every volume ingredient has independently authored metric and imperial quantities. Switching units selects that recipe specification, then scales it by servings. Ounces use familiar fractions such as ¾ oz and 1½ oz; small pours use teaspoons. The two specifications are practical recipe proportions, not exact conversions. Mint leaves and bitters dashes scale without volume conversion. Multi-serving recipes advise mixing in small batches.
 
-The ingredient parser uses explicit names and aliases. It does not infer brands or parse arbitrary conversation. For example, “limes” matches lime juice, while “rum” asks for a more specific entry such as “white rum.” Recipe variants are hand-authored; there is no generated substitution engine.
+The ingredient parser uses explicit names and aliases. It does not infer brands or parse arbitrary conversation. For example, “limes” matches lime juice, while “rum” asks for a more specific entry such as “white rum.” Recipe variants are hand-authored and never combined automatically. Rye can replace bourbon in the Old Fashioned, Whiskey Sour, and Boulevardier; the Manhattan already offers bourbon in place of rye. Other supported variations include orange bitters in an Old Fashioned and aquafaba in a Clover Club. Suggested versions are labeled in discovery, recipe lists, and shopping results, and open with the selected ingredients and instructions. “Make it your own” shows each adjustment as a self-contained tip without undoing other swaps. When viewing a substitution, a separate tip explains how to make the original. Reading tips does not change the ingredient list or instructions.
 
 ## Code
 
@@ -62,3 +62,7 @@ This is an initial working app. App Store signing, distribution, cloud sync, and
 ## Simulator previews
 
 Captured from the passing iPhone 17 Pro UI test: [recommendations](docs/screenshots/for-you.png), [scaled recipe](docs/screenshots/recipe.png), [ounce measurements](docs/screenshots/recipe-ounces.png), and [shopping suggestions](docs/screenshots/shopping.png).
+
+Substitution flow: [suggested rye swap](docs/screenshots/substitution-suggestion.png) and [scaled rye recipe](docs/screenshots/substitution-recipe.png).
+
+Recipe tips: [text-only mixing suggestions](docs/screenshots/mixing-tips.png).

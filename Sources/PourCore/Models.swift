@@ -85,12 +85,52 @@ public struct RecipeIngredient: Identifiable, Hashable, Sendable {
     }
 }
 
+/// Self-contained mixing tips derived from two ingredient specifications.
+public enum RecipeAdjustments {
+    public static func instructions(from current: [RecipeIngredient], to alternative: [RecipeIngredient],
+                                    servings: Int, unit: DisplayUnit) -> [String] {
+        let removed = current.filter { item in !alternative.contains { $0.ingredientID == item.ingredientID } }
+        let added = alternative.filter { item in !current.contains { $0.ingredientID == item.ingredientID } }
+        let replacements = added.count == removed.count ? Dictionary(uniqueKeysWithValues:
+            zip(added, removed).map { ($0.ingredientID, $1) }) : [:]
+        var instructions: [String] = []
+        for ingredient in alternative {
+            let name = Catalog.name(for: ingredient.ingredientID).lowercased()
+            let amount = ingredient.formatted(servings: servings, unit: unit)
+            if let previous = current.first(where: { $0.ingredientID == ingredient.ingredientID }) {
+                let oldAmount = previous.formatted(servings: servings, unit: unit)
+                if amount != oldAmount {
+                    instructions.append("Use \(amount) \(name) instead of \(oldAmount).")
+                }
+            } else if let previous = replacements[ingredient.ingredientID] {
+                instructions.append("Use \(amount) \(name) instead of \(Catalog.name(for: previous.ingredientID).lowercased()).")
+            } else {
+                instructions.append("Add \(amount) \(name).")
+            }
+        }
+        if replacements.isEmpty {
+            instructions += removed.map { "Leave out the \(Catalog.name(for: $0.ingredientID).lowercased())." }
+        }
+        return instructions
+    }
+}
+
 public struct Variation: Identifiable, Sendable {
     public let id: String
     public let name: String
     public let note: String
     /// Complete ingredient list, so substitutions participate in matching and scaling.
     public let ingredients: [RecipeIngredient]
+    /// Only needed when the original instructions name an ingredient being replaced.
+    public let steps: [String]?
+
+    public init(id: String, name: String, note: String, ingredients: [RecipeIngredient], steps: [String]? = nil) {
+        self.id = id
+        self.name = name
+        self.note = note
+        self.ingredients = ingredients
+        self.steps = steps
+    }
 }
 
 public struct Recipe: Identifiable, Sendable {
@@ -115,33 +155,64 @@ public struct ShoppingSuggestion: Identifiable, Sendable {
     public let unlockedRecipes: [Recipe]
 }
 
+/// One original recipe or a complete, curated variation. Swaps are never combined implicitly.
+public struct RecipeMatch: Sendable {
+    public let recipe: Recipe
+    public let variation: Variation?
+    public var ingredients: [RecipeIngredient] { variation?.ingredients ?? recipe.ingredients }
+    public func missing(from pantry: Set<String>) -> Set<String> {
+        Set(ingredients.map(\.ingredientID)).subtracting(pantry)
+    }
+}
+
 public enum RecommendationEngine {
-    public static func available(in recipes: [Recipe], pantry: Set<String>) -> [Recipe] {
-        recipes.filter { $0.missing(from: pantry).isEmpty }
+    private static func options(for recipe: Recipe) -> [RecipeMatch] {
+        [RecipeMatch(recipe: recipe, variation: nil)] + recipe.variations.map {
+            RecipeMatch(recipe: recipe, variation: $0)
+        }
     }
 
-    /// Rank all useful purchases of up to two ingredients, including combinations that
-    /// unlock separate recipes. Omit pairs when either item contributes no extra recipes.
+    /// Prefer the version needing the fewest purchases; the original wins ties,
+    /// followed by variations in their curated catalog order.
+    public static func bestMatch(for recipe: Recipe, pantry: Set<String>) -> RecipeMatch {
+        options(for: recipe).reduce(RecipeMatch(recipe: recipe, variation: nil)) { best, option in
+            option.missing(from: pantry).count < best.missing(from: pantry).count ? option : best
+        }
+    }
+
+    public static func available(in recipes: [Recipe], pantry: Set<String>) -> [Recipe] {
+        recipes.filter { bestMatch(for: $0, pantry: pantry).missing(from: pantry).isEmpty }
+    }
+
+    /// Evaluate all original and curated versions, but count each newly available
+    /// drink once. Do not suggest purchases for drinks already possible with a swap.
     public static func shopping(in recipes: [Recipe], pantry: Set<String>, budget: Int) -> [ShoppingSuggestion] {
         let limit = min(2, max(1, budget))
-        let missing = recipes.map { ($0, $0.missing(from: pantry)) }.filter { !$0.1.isEmpty }
-        let candidates = Set(missing.filter { $0.1.count <= limit }.flatMap { $0.1 }).sorted()
+        let missing = recipes.compactMap { recipe -> (Recipe, [Set<String>])? in
+            let needs = options(for: recipe).map { $0.missing(from: pantry) }
+            guard !needs.contains(where: \.isEmpty) else { return nil }
+            let useful = needs.filter { $0.count <= limit }
+            return useful.isEmpty ? nil : (recipe, useful)
+        }
+        let candidates = Set(missing.flatMap { $0.1.flatMap { $0 } }).sorted()
         var sets = candidates.map { Set([$0]) }
         if limit == 2 {
             for i in candidates.indices {
                 for j in candidates.indices where j > i { sets.append(Set([candidates[i], candidates[j]])) }
             }
         }
+        func unlocked(by purchase: Set<String>) -> [Recipe] {
+            missing.filter { entry in entry.1.contains { $0.isSubset(of: purchase) } }.map(\.0)
+        }
         return sets.compactMap { purchase -> ShoppingSuggestion? in
-            let unlocked = missing.filter { $0.1.isSubset(of: purchase) }.map(\.0)
-            guard !unlocked.isEmpty else { return nil }
+            let recipes = unlocked(by: purchase)
+            guard !recipes.isEmpty else { return nil }
             if purchase.count == 2 {
                 for item in purchase {
-                    let reduced = purchase.subtracting([item])
-                    if missing.filter({ $0.1.isSubset(of: reduced) }).count == unlocked.count { return nil }
+                    if unlocked(by: purchase.subtracting([item])).count == recipes.count { return nil }
                 }
             }
-            return ShoppingSuggestion(ingredientIDs: purchase, unlockedRecipes: unlocked)
+            return ShoppingSuggestion(ingredientIDs: purchase, unlockedRecipes: recipes)
         }.sorted {
             if $0.unlockedRecipes.count != $1.unlockedRecipes.count { return $0.unlockedRecipes.count > $1.unlockedRecipes.count }
             if $0.ingredientIDs.count != $1.ingredientIDs.count { return $0.ingredientIDs.count < $1.ingredientIDs.count }

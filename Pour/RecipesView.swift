@@ -13,7 +13,7 @@ struct RecipesView: View {
             (search.isEmpty || $0.name.localizedCaseInsensitiveContains(search) || $0.ingredients.contains { Catalog.name(for: $0.ingredientID).localizedCaseInsensitiveContains(search) }) &&
             (family == "All" || $0.family == family) &&
             (!onlyFavorites || bar.favorites.contains($0.id)) &&
-            (!onlyAvailable || $0.missing(from: bar.pantry).isEmpty)
+            (!onlyAvailable || bar.match(for: $0).missing(from: bar.pantry).isEmpty)
         }
     }
 

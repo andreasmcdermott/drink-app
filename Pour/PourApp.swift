@@ -34,6 +34,10 @@ final class BarStore {
         unit = DisplayUnit(rawValue: defaults.string(forKey: "unit") ?? "ml") ?? .ml
     }
 
+    func match(for recipe: Recipe) -> RecipeMatch {
+        RecommendationEngine.bestMatch(for: recipe, pantry: pantry)
+    }
+
     var available: [Recipe] { RecommendationEngine.available(in: Catalog.recipes, pantry: pantry) }
     func toggle(_ ingredient: String) {
         if pantry.contains(ingredient) { pantry.remove(ingredient) } else { pantry.insert(ingredient) }

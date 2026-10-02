@@ -5,7 +5,14 @@ struct DiscoverView: View {
     @Environment(BarStore.self) private var bar
     let openBar: () -> Void
     private var almost: [Recipe] {
-        Catalog.recipes.filter { $0.missing(from: bar.pantry).count == 1 }
+        Catalog.recipes.filter { bar.match(for: $0).missing(from: bar.pantry).count == 1 }
+    }
+
+    private var originals: [Recipe] {
+        bar.available.filter { $0.missing(from: bar.pantry).isEmpty }
+    }
+    private var withSwap: [Recipe] {
+        bar.available.filter { !$0.missing(from: bar.pantry).isEmpty }
     }
 
     var body: some View {
@@ -31,22 +38,30 @@ struct DiscoverView: View {
                         .font(.subheadline).foregroundStyle(Palette.secondary).multilineTextAlignment(.center)
                     Button("Add my ingredients", action: openBar).buttonStyle(PrimaryButton()).padding(.top, 8)
                 }.padding(24).background(Palette.paper(Catalog.recipes[0]), in: RoundedRectangle(cornerRadius: 28))
-            } else if let featured = bar.available.first {
-                NavigationLink { RecipeDetailView(recipe: featured) } label: {
+            } else if let featured = originals.first ?? withSwap.first {
+                NavigationLink { RecipeDetailView(recipe: featured, initialVariationID: bar.match(for: featured).variation?.id) } label: {
                     VStack(alignment: .leading, spacing: 12) {
                         HStack { Eyebrow(text: "Tonight’s first pour"); Spacer(); Image(systemName: "arrow.up.right") }
                         CocktailArt(recipe: featured).frame(height: 185)
                         Text(featured.name).font(.system(.largeTitle, design: .serif))
                         Text(featured.subtitle).font(.subheadline).foregroundStyle(Palette.secondary)
+                        if let variation = bar.match(for: featured).variation {
+                            Text(variation.name).font(.subheadline.weight(.semibold)).foregroundStyle(Palette.green)
+                            Text(variation.note).font(.footnote).foregroundStyle(Palette.secondary)
+                        }
                         Pill(text: "Everything’s on your shelf")
                     }.padding(24).background(Palette.paper(featured), in: RoundedRectangle(cornerRadius: 28))
                 }.buttonStyle(.plain)
             } else {
                 ContentUnavailableView("Your first drink is close", systemImage: "wineglass", description: Text("Add more ingredients to My bar, or see Add a little for useful purchases."))
             }
-            if !bar.available.isEmpty {
+            if !originals.isEmpty {
                 SectionTitle(title: "Ready when you are", caption: "Made with what you already have.")
-                ForEach(bar.available) { RecipeRow(recipe: $0) }
+                ForEach(originals) { RecipeRow(recipe: $0) }
+            }
+            if !withSwap.isEmpty {
+                SectionTitle(title: "Ready with a swap", caption: "A small change, using what you already have.")
+                ForEach(withSwap) { RecipeRow(recipe: $0) }
             }
             if !almost.isEmpty {
                 SectionTitle(title: "One ingredient away", caption: "A small addition opens up something new.")

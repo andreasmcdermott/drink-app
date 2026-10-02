@@ -32,8 +32,18 @@ struct ShoppingView: View {
                         .font(.system(.title2, design: .serif))
                     Pill(text: "Unlocks \(suggestion.unlockedRecipes.count) new drink\(suggestion.unlockedRecipes.count == 1 ? "" : "s")")
                     ForEach(suggestion.unlockedRecipes) { recipe in
-                        NavigationLink { RecipeDetailView(recipe: recipe) } label: {
-                            HStack { Text(recipe.name); Spacer(); Image(systemName: "arrow.up.right").font(.caption) }
+                        let match = RecommendationEngine.bestMatch(for: recipe, pantry: bar.pantry.union(suggestion.ingredientIDs))
+                        NavigationLink { RecipeDetailView(recipe: recipe, initialVariationID: match.variation?.id) } label: {
+                            HStack {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(recipe.name)
+                                    if let variation = match.variation {
+                                        Text(variation.name).font(.caption).foregroundStyle(Palette.secondary)
+                                    }
+                                }
+                                Spacer()
+                                Image(systemName: "arrow.up.right").font(.caption)
+                            }
                         }.font(.subheadline)
                     }
                     Divider()

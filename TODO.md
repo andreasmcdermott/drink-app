@@ -4,9 +4,9 @@
 
 ### Match recipe variations
 
-- [ ] Include curated variations in drink recommendations and missing-ingredient checks.
-- [ ] Explain which version can be made with the ingredients on the shelf—for example, suggest a Bourbon Manhattan when bourbon is available but rye is missing.
-- [ ] Include variations in shopping recommendations without counting multiple versions of the same drink as separate unlocks.
+- [x] Include curated variations in drink recommendations and missing-ingredient checks.
+- [x] Explain which version can be made with the ingredients on the shelf—for example, suggest a Bourbon Manhattan when bourbon is available but rye is missing.
+- [x] Include variations in shopping recommendations without counting multiple versions of the same drink as separate unlocks.
 
 ### Save a shopping list
 

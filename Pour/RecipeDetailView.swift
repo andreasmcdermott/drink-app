@@ -5,9 +5,15 @@ struct RecipeDetailView: View {
     @Environment(BarStore.self) private var bar
     let recipe: Recipe
     @State private var servings = 1
-    @State private var variationID: String? = nil
+    private let variationID: String?
+    init(recipe: Recipe, initialVariationID: String? = nil) {
+        self.recipe = recipe
+        variationID = initialVariationID
+    }
+
     private var variation: Variation? { recipe.variations.first { $0.id == variationID } }
     private var ingredients: [RecipeIngredient] { variation?.ingredients ?? recipe.ingredients }
+    private var steps: [String] { variation?.steps ?? recipe.steps }
     private var missing: [RecipeIngredient] { ingredients.filter { !bar.pantry.contains($0.ingredientID) } }
 
     var body: some View {
@@ -20,6 +26,10 @@ struct RecipeDetailView: View {
                 Eyebrow(text: "\(recipe.family) / \(recipe.glass) glass")
                 Text(recipe.name).font(.system(.largeTitle, design: .serif))
                 Text(recipe.subtitle).foregroundStyle(Palette.secondary)
+                if let variation {
+                    Text(variation.name).font(.headline).foregroundStyle(Palette.green)
+                    Text(variation.note).font(.subheadline).foregroundStyle(Palette.secondary)
+                }
                 Pill(text: missing.isEmpty ? "Ready to mix" : "\(missing.count) ingredient\(missing.count == 1 ? "" : "s") missing")
             }
             VStack(alignment: .leading, spacing: 20) {
@@ -55,15 +65,17 @@ struct RecipeDetailView: View {
             }.padding(20).background(.white.opacity(0.8), in: RoundedRectangle(cornerRadius: 22))
             if !recipe.variations.isEmpty {
                 VStack(alignment: .leading, spacing: 12) {
-                    SectionTitle(title: "Make it your own", caption: "Small changes, chosen for this drink.")
-                    variationButton(id: nil, name: "The original", note: nil)
-                    ForEach(recipe.variations) { variation in
-                        variationButton(id: variation.id, name: variation.name, note: variation.note)
+                    SectionTitle(title: "Make it your own", caption: "Amounts for \(servings) drink\(servings == 1 ? "" : "s").")
+                    if variation != nil {
+                        suggestion(name: "The original", alternative: recipe.ingredients)
+                    }
+                    ForEach(recipe.variations.filter { $0.id != variationID }) { option in
+                        suggestion(name: option.name, alternative: option.ingredients, baseline: recipe.ingredients)
                     }
                 }
             }
             SectionTitle(title: "Let’s make it")
-            ForEach(Array(recipe.steps.enumerated()), id: \.offset) { index, step in
+            ForEach(Array(steps.enumerated()), id: \.offset) { index, step in
                 HStack(alignment: .top, spacing: 16) {
                     Text(String(format: "%02d", index + 1)).font(.system(.body, design: .serif)).foregroundStyle(Palette.secondary)
                     Text(step).font(.body).lineSpacing(4)
@@ -86,16 +98,16 @@ struct RecipeDetailView: View {
             }
     }
 
-    private func variationButton(id: String?, name: String, note: String?) -> some View {
-        Button { variationID = id } label: {
-            HStack(alignment: .top, spacing: 12) {
-                Image(systemName: variationID == id ? "largecircle.fill.circle" : "circle").padding(.top, 2)
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(name).font(.subheadline.weight(.semibold))
-                    if let note { Text(note).font(.footnote).foregroundStyle(Palette.secondary).multilineTextAlignment(.leading) }
-                }
-                Spacer(minLength: 0)
-            }.padding(16).background(variationID == id ? Palette.green.opacity(0.08) : .white.opacity(0.7), in: RoundedRectangle(cornerRadius: 16))
-        }.buttonStyle(.plain).accessibilityAddTraits(variationID == id ? .isSelected : [])
+    private func suggestion(name: String, alternative: [RecipeIngredient], baseline: [RecipeIngredient]? = nil) -> some View {
+        // Each tip describes its own change without undoing another suggested swap.
+        let instructions = RecipeAdjustments.instructions(from: baseline ?? ingredients, to: alternative,
+                                                         servings: servings, unit: bar.unit)
+        return VStack(alignment: .leading, spacing: 4) {
+            Text(name).font(.subheadline.weight(.semibold))
+            Text(instructions.joined(separator: " "))
+                .font(.subheadline).foregroundStyle(Palette.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }

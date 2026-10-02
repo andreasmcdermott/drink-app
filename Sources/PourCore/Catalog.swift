@@ -56,7 +56,8 @@ public enum Catalog {
                ["Add bourbon, simple syrup, and bitters to a rocks glass.", "Add a large ice cube and stir for 20–30 seconds."],
                garnish: "Express an orange peel over each glass.", variations: [
                 Variation(id: "sweeter", name: "A little sweeter", note: "Use the increased syrup amount below for a sweeter drink. Taste before adding more.", ingredients: [.init("bourbon", 60, imperial: .oz(2)), .init("syrup", 12.5, imperial: .tsp(2.5)), .init("angostura", 2, .dash)]),
-                Variation(id: "orange", name: "Orange bitters", note: "Swap aromatic bitters for orange bitters for a brighter, less spicy drink.", ingredients: [.init("bourbon", 60, imperial: .oz(2)), .init("syrup", 7.5, imperial: .oz(0.25)), .init("orange-bitters", 2, .dash)])]),
+                Variation(id: "orange", name: "Orange bitters", note: "Swap aromatic bitters for orange bitters for a brighter, less spicy drink.", ingredients: [.init("bourbon", 60, imperial: .oz(2)), .init("syrup", 7.5, imperial: .oz(0.25)), .init("orange-bitters", 2, .dash)]),
+                Variation(id: "rye", name: "Rye Old Fashioned", note: "Use rye whiskey instead of bourbon for a drier, spicier drink.", ingredients: [.init("rye", 60, imperial: .oz(2)), .init("syrup", 7.5, imperial: .oz(0.25)), .init("angostura", 2, .dash)], steps: ["Add rye whiskey, simple syrup, and bitters to a rocks glass.", "Add a large ice cube and stir for 20–30 seconds."])]),
         recipe("negroni", "Negroni", "Bitter, bold, beautifully balanced.", "Gin", "Rocks", "red",
                [.init("gin", 30, imperial: .oz(1)), .init("campari", 30, imperial: .oz(1)), .init("sweet-vermouth", 30, imperial: .oz(1))],
                ["Add all ingredients to a rocks glass filled with ice.", "Stir for 20–30 seconds until cold."], garnish: "Add an orange peel to each glass."),
@@ -69,7 +70,8 @@ public enum Catalog {
                 Variation(id: "dry", name: "A touch drier", note: "Use the reduced syrup amount below for a sharper finish.", ingredients: [.init("rum", 60, imperial: .oz(2)), .init("lime", 25, imperial: .oz(0.75)), .init("syrup", 10, imperial: .tsp(2))])]),
         recipe("whiskey-sour", "Whiskey Sour", "A bright, silky whiskey classic.", "Whiskey", "Rocks", "amber",
                [.init("bourbon", 60, imperial: .oz(2)), .init("lemon", 30, imperial: .oz(1)), .init("syrup", 20, imperial: .oz(0.75))],
-               ["Add all ingredients to a shaker with ice.", "Shake hard for 10–15 seconds.", "Strain into a rocks glass over fresh ice."], garnish: "Add a lemon slice or cocktail cherry. This version is made without egg white."),
+               ["Add all ingredients to a shaker with ice.", "Shake hard for 10–15 seconds.", "Strain into a rocks glass over fresh ice."], garnish: "Add a lemon slice or cocktail cherry. This version is made without egg white.", variations: [
+                Variation(id: "rye", name: "Rye Whiskey Sour", note: "Use rye whiskey instead of bourbon for a spicier sour with a drier finish.", ingredients: [.init("rye", 60, imperial: .oz(2)), .init("lemon", 30, imperial: .oz(1)), .init("syrup", 20, imperial: .oz(0.75))])]),
         recipe("gin-sour", "Gin Sour", "Crisp botanicals with fresh lemon.", "Gin", "Coupe", "lemon",
                [.init("gin", 60, imperial: .oz(2)), .init("lemon", 30, imperial: .oz(1)), .init("syrup", 20, imperial: .oz(0.75))], shake),
         recipe("bees-knees", "Bee’s Knees", "Floral honey and a lemon lift.", "Gin", "Coupe", "lemon",
@@ -87,7 +89,7 @@ public enum Catalog {
                 Variation(id: "orange", name: "A citrus accent", note: "One dash of orange bitters adds a subtle citrus note.", ingredients: [.init("gin", 60, imperial: .oz(2)), .init("dry-vermouth", 10, imperial: .tsp(2)), .init("orange-bitters", 1, .dash)])]),
         recipe("clover-club", "Clover Club", "Raspberry and lemon under a soft pink foam.", "Gin", "Coupe", "pink",
                [.init("gin", 50, imperial: .oz(2)), .init("lemon", 25, imperial: .oz(0.75)), .init("raspberry-syrup", 20, imperial: .oz(0.75)), .init("egg-white", 20, imperial: .oz(0.75))],
-               ["Add all ingredients to a shaker without ice. Use pasteurized egg white, or aquafaba if you selected the egg-free variation.", "Seal firmly and shake for 15 seconds to build foam.", "Add ice and shake again for 10–15 seconds, then fine-strain into a chilled coupe."],
+               ["Add all ingredients to a shaker without ice. Use pasteurized egg white, or aquafaba for egg-free foam.", "Seal firmly and shake for 15 seconds to build foam.", "Add ice and shake again for 10–15 seconds, then fine-strain into a chilled coupe."],
                garnish: "Add a raspberry to each glass.", variations: [
                 Variation(id: "egg-free", name: "Egg-free foam", note: "Replace egg white with the same volume of aquafaba (unsalted chickpea brine). Use the same shaking method.", ingredients: [.init("gin", 50, imperial: .oz(2)), .init("lemon", 25, imperial: .oz(0.75)), .init("raspberry-syrup", 20, imperial: .oz(0.75)), .init("aquafaba", 20, imperial: .oz(0.75))])]),
         recipe("white-lady", "White Lady", "A crisp gin sour with a bright orange edge.", "Gin", "Coupe", "lemon",
@@ -134,7 +136,8 @@ public enum Catalog {
                 Variation(id: "bourbon", name: "Bourbon Manhattan", note: "Use bourbon in place of rye for a rounder, sweeter whiskey profile.", ingredients: [.init("bourbon", 60, imperial: .oz(2)), .init("sweet-vermouth", 30, imperial: .oz(1)), .init("angostura", 2, .dash)])]),
         recipe("boulevardier", "Boulevardier", "The Negroni’s whiskey cousin.", "Whiskey", "Rocks", "red",
                [.init("bourbon", 45, imperial: .oz(1.5)), .init("campari", 30, imperial: .oz(1)), .init("sweet-vermouth", 30, imperial: .oz(1))],
-               ["Stir all ingredients with ice in a mixing glass for 20–30 seconds.", "Strain into a rocks glass over a large ice cube."], garnish: "Add an orange peel."),
+               ["Stir all ingredients with ice in a mixing glass for 20–30 seconds.", "Strain into a rocks glass over a large ice cube."], garnish: "Add an orange peel.", variations: [
+                Variation(id: "rye", name: "Rye Boulevardier", note: "Use rye whiskey instead of bourbon for a drier drink with more spice. Keep the Campari and sweet vermouth.", ingredients: [.init("rye", 45, imperial: .oz(1.5)), .init("campari", 30, imperial: .oz(1)), .init("sweet-vermouth", 30, imperial: .oz(1))])]),
         recipe("americano", "Americano", "Bitter orange, vermouth, and bubbles.", "Aperitif", "Highball", "red",
                [.init("campari", 30, imperial: .oz(1)), .init("sweet-vermouth", 30, imperial: .oz(1)), .init("soda", 90, imperial: .oz(3))], highball, garnish: "Add an orange slice."),
         recipe("aperol-spritz", "Aperol Spritz", "A little Italian sunshine.", "Aperitif", "Wine", "orange",
