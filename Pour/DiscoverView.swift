@@ -3,7 +3,13 @@ import PourCore
 
 struct DiscoverView: View {
     @Environment(BarStore.self) private var bar
+    @Environment(\.scenePhase) private var scenePhase
+    @State private var featuredDate = Date()
     let openBar: () -> Void
+
+    private var featured: Recipe? {
+        RecommendationEngine.featured(in: Catalog.recipes, pantry: bar.pantry, on: featuredDate)
+    }
     private var almost: [Recipe] {
         Catalog.recipes.filter { bar.match(for: $0).missing(from: bar.pantry).count == 1 }
     }
@@ -38,7 +44,7 @@ struct DiscoverView: View {
                         .font(.subheadline).foregroundStyle(Palette.secondary).multilineTextAlignment(.center)
                     Button("Add my ingredients", action: openBar).buttonStyle(PrimaryButton()).padding(.top, 8)
                 }.padding(24).background(Palette.paper(Catalog.recipes[0]), in: RoundedRectangle(cornerRadius: 28))
-            } else if let featured = originals.first ?? withSwap.first {
+            } else if let featured {
                 NavigationLink { RecipeDetailView(recipe: featured, initialVariationID: bar.match(for: featured).variation?.id) } label: {
                     VStack(alignment: .leading, spacing: 12) {
                         HStack { Eyebrow(text: "Tonight’s first pour"); Spacer(); Image(systemName: "arrow.up.right") }
@@ -74,5 +80,15 @@ struct DiscoverView: View {
             Text("Ice and water are assumed. Garnishes are optional.")
                 .font(.caption).foregroundStyle(Palette.secondary)
         }.toolbar(.hidden, for: .navigationBar)
+        .onAppear { featuredDate = Date() }
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active { featuredDate = Date() }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .NSCalendarDayChanged)) { _ in
+            featuredDate = Date()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .NSSystemTimeZoneDidChange)) { _ in
+            featuredDate = Date()
+        }
     }
 }

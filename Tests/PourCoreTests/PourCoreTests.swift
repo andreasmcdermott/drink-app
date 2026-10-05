@@ -2,6 +2,53 @@ import XCTest
 @testable import PourCore
 
 final class PourCoreTests: XCTestCase {
+    func testFeaturedDrinkCyclesThroughEveryAvailableRecipeWithoutRepeating() throws {
+        let pantry = Set(Catalog.ingredients.map(\.id))
+        let calendar = Calendar(identifier: .gregorian)
+        let start = try XCTUnwrap(calendar.date(from: DateComponents(year: 2026, month: 10, day: 5)))
+        var picks: [String] = []
+        for offset in 0..<Catalog.recipes.count {
+            let date = try XCTUnwrap(calendar.date(byAdding: .day, value: offset, to: start))
+            let pick = try XCTUnwrap(RecommendationEngine.featured(in: Catalog.recipes, pantry: pantry, on: date, calendar: calendar))
+            picks.append(pick.id)
+            XCTAssertEqual(RecommendationEngine.featured(in: Catalog.recipes.reversed(), pantry: pantry, on: date, calendar: calendar)?.id, pick.id)
+        }
+        XCTAssertEqual(Set(picks), Set(Catalog.recipes.map(\.id)))
+    }
+
+    func testFeaturedDrinkUsesLocalDaysAcrossDaylightSavingChanges() throws {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = try XCTUnwrap(TimeZone(identifier: "America/Los_Angeles"))
+        let pantry = Set(Catalog.ingredients.map(\.id))
+        for (month, day) in [(3, 8), (11, 1)] {
+            let morning = try XCTUnwrap(calendar.date(from: DateComponents(year: 2026, month: month, day: day, hour: 0, minute: 1)))
+            let evening = try XCTUnwrap(calendar.date(from: DateComponents(year: 2026, month: month, day: day, hour: 23, minute: 59)))
+            let tomorrow = try XCTUnwrap(calendar.date(byAdding: .minute, value: 2, to: evening))
+            let first = try XCTUnwrap(RecommendationEngine.featured(in: Catalog.recipes, pantry: pantry, on: morning, calendar: calendar))
+            XCTAssertEqual(RecommendationEngine.featured(in: Catalog.recipes, pantry: pantry, on: evening, calendar: calendar)?.id, first.id)
+            XCTAssertNotEqual(RecommendationEngine.featured(in: Catalog.recipes, pantry: pantry, on: tomorrow, calendar: calendar)?.id, first.id)
+        }
+    }
+
+    func testFeaturedDrinkOnlyUsesMakeableRecipesAndIncludesSwaps() throws {
+        let date = Date(timeIntervalSince1970: 1_791_216_000)
+        let calendar = Calendar(identifier: .gregorian)
+        XCTAssertNil(RecommendationEngine.featured(in: Catalog.recipes, pantry: [], on: date))
+        XCTAssertEqual(RecommendationEngine.featured(in: Catalog.recipes, pantry: ["gin", "lime", "syrup"], on: date)?.id, "gimlet")
+        let pantry: Set<String> = ["gin", "lime", "syrup", "rye", "angostura"]
+        let expected: Set<String> = ["gimlet", "old-fashioned"]
+        var picks: Set<String> = []
+        for offset in 0..<2 {
+            let day = try XCTUnwrap(calendar.date(byAdding: .day, value: offset, to: date))
+            let recipe = try XCTUnwrap(RecommendationEngine.featured(in: Catalog.recipes, pantry: pantry, on: day, calendar: calendar))
+            picks.insert(recipe.id)
+            let match = RecommendationEngine.bestMatch(for: recipe, pantry: pantry)
+            XCTAssertTrue(match.missing(from: pantry).isEmpty)
+            if recipe.id == "old-fashioned" { XCTAssertEqual(match.variation?.id, "rye") }
+        }
+        XCTAssertEqual(picks, expected)
+    }
+
     func testMatchingRequiresAllIngredientsButNotGarnishes() throws {
         let oldFashioned = try XCTUnwrap(Catalog.recipes.first { $0.id == "old-fashioned" })
         let pantry: Set<String> = ["bourbon", "syrup", "angostura"]

@@ -26,6 +26,8 @@ The gin collection includes Clover Club, Gin Cosmopolitan, White Lady, Gin & It,
 
 A recipe is available when every required ingredient for its original version or a curated variation is on the shelf. Recommendations prefer the version needing the fewest missing ingredients, with the original winning ties. Ice and water are assumed; optional garnishes never block a match. Possession is tracked, not remaining bottle volume.
 
+The featured drink rotates once per local calendar day through all makeable recipes, including curated substitutions. With an unchanged shelf, every candidate appears once before the cycle repeats. The pick stays stable across launches during the day and refreshes when the app returns to the foreground or the local day changes. It does not infer a preferred spirit.
+
 Shopping recommendations evaluate every useful one- and two-ingredient purchase. They count each newly available drink once across its original and curated variations, rank by that count, prefer fewer purchases on ties, and discard pairs if either ingredient contributes no additional recipes. Drinks already possible with a substitution are excluded. Prices and bottle sizes are not modeled.
 
 Every volume ingredient has independently authored metric and imperial quantities. Switching units selects that recipe specification, then scales it by servings. Ounces use familiar fractions such as ¾ oz and 1½ oz; small pours use teaspoons. Adjustment tips keep the original ingredient’s unit so quantities are directly comparable. The two specifications are practical recipe proportions, not exact conversions. Mint leaves and bitters dashes scale without volume conversion. Multi-serving recipes advise mixing in small batches.

@@ -184,6 +184,21 @@ public enum RecommendationEngine {
         recipes.filter { bestMatch(for: $0, pantry: pantry).missing(from: pantry).isEmpty }
     }
 
+    /// Each available drink gets one day per cycle, including curated substitutions.
+    /// A stable shelf and local date produce the same pick across app launches.
+    public static func featured(in recipes: [Recipe], pantry: Set<String>, on date: Date,
+                                calendar: Calendar = .current) -> Recipe? {
+        let candidates = available(in: recipes, pantry: pantry).sorted { $0.id < $1.id }
+        // Count date labels in UTC so a 23- or 25-hour local day still gets one pick.
+        var dayCalendar = calendar
+        dayCalendar.timeZone = .gmt
+        let components = calendar.dateComponents([.era, .year, .month, .day], from: date)
+        guard !candidates.isEmpty,
+              let localDay = dayCalendar.date(from: components),
+              let day = dayCalendar.ordinality(of: .day, in: .era, for: localDay) else { return nil }
+        return candidates[(day - 1) % candidates.count]
+    }
+
     /// Evaluate all original and curated versions, but count each newly available
     /// drink once. Do not suggest purchases for drinks already possible with a swap.
     public static func shopping(in recipes: [Recipe], pantry: Set<String>, budget: Int) -> [ShoppingSuggestion] {
