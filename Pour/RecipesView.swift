@@ -7,7 +7,7 @@ struct RecipesView: View {
     @State private var family = "All"
     @State private var onlyFavorites = false
     @State private var onlyAvailable = false
-    private let families = ["All", "Gin", "Whiskey", "Rum", "Tequila", "Vodka", "Brandy", "Aperitif", "Alcohol-free"]
+    private let families = ["All", "Gin", "Whiskey", "Rum", "Tequila", "Vodka", "Brandy", "Aperitif", "Bitters", "Alcohol-free"]
     private var filtered: [Recipe] {
         Catalog.recipes.filter {
             (search.isEmpty || $0.name.localizedCaseInsensitiveContains(search) || $0.ingredients.contains { Catalog.name(for: $0.ingredientID).localizedCaseInsensitiveContains(search) }) &&

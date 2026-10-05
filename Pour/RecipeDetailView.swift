@@ -59,9 +59,6 @@ struct RecipeDetailView: View {
                     Text("Amounts are for all \(servings) drinks. Shake or stir in small batches, then divide evenly between glasses. Add fresh ice to each batch.")
                         .font(.footnote).foregroundStyle(Palette.secondary)
                 }
-                if bar.unit == .oz {
-                    Text("Ounce recipes use their own proportions. Small pours are shown in teaspoons.").font(.caption).foregroundStyle(Palette.secondary)
-                }
             }.padding(20).background(.white.opacity(0.8), in: RoundedRectangle(cornerRadius: 22))
             if !recipe.variations.isEmpty {
                 VStack(alignment: .leading, spacing: 12) {
