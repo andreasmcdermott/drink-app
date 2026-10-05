@@ -8,7 +8,7 @@ Run on 2026-10-05 against `6a0a2b0` plus the fixes on this branch, using Xcode w
 | Larger text | Pass after fixes | Accessibility audit and screenshots of every screen at Large (default) and Accessibility XXXL. |
 | VoiceOver | Pass after fixes | Accessibility audit plus a review of the element tree on each screen. |
 | Saved ingredients after updates | Pass | Installed the first build (`5a3d45a`), saved a shelf, a favorite, and ounces, then installed this build over it. |
-| Offline use | Pass | No networking APIs, URLs, or remote images. All 59 illustrations and paper colors are bundled. |
+| Offline use | Pass | No networking APIs or remote images. All 59 illustrations and paper colors are bundled. The only URL is the privacy policy's GitHub link, which opens in the browser. |
 
 ## Fixes
 
