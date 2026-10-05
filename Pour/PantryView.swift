@@ -49,7 +49,17 @@ struct PantryView: View {
                 Button("Clear my shelf", role: .destructive) { showClear = true }.font(.footnote)
             }
         }.navigationTitle("My bar")
-            .searchable(text: $search, prompt: "Find an ingredient")
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                NavigationLink {
+                    PrivacyView()
+                } label: {
+                    Label("Privacy policy", systemImage: "hand.raised")
+                }
+                .accessibilityIdentifier("privacy-policy")
+            }
+        }
+        .searchable(text: $search, prompt: "Find an ingredient")
             .confirmationDialog("Remove all ingredients from your shelf?", isPresented: $showClear, titleVisibility: .visible) {
                 Button("Clear shelf", role: .destructive) { bar.pantry.removeAll() }
             }
