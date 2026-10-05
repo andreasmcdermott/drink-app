@@ -26,10 +26,11 @@ struct ShoppingView: View {
                     HStack {
                         Eyebrow(text: index == 0 ? "Most possibilities" : "Another good addition")
                         Spacer()
-                        Image(systemName: "basket").foregroundStyle(Palette.green)
+                        Image(systemName: "basket").foregroundStyle(Palette.green).accessibilityHidden(true)
                     }
-                    Text(suggestion.ingredientIDs.sorted().map(Catalog.name(for:)).joined(separator: " + "))
-                        .font(.system(.title2, design: .serif))
+                    let names = suggestion.ingredientIDs.sorted().map(Catalog.name(for:))
+                    Text(names.joined(separator: " + "))
+                        .font(.system(.title2, design: .serif)).accessibilityAddTraits(.isHeader)
                     Pill(text: "Unlocks \(suggestion.unlockedRecipes.count) new drink\(suggestion.unlockedRecipes.count == 1 ? "" : "s")")
                     ForEach(suggestion.unlockedRecipes) { recipe in
                         let match = RecommendationEngine.bestMatch(for: recipe, pantry: bar.pantry.union(suggestion.ingredientIDs))
@@ -42,8 +43,8 @@ struct ShoppingView: View {
                                     }
                                 }
                                 Spacer()
-                                Image(systemName: "arrow.up.right").font(.caption)
-                            }
+                                Image(systemName: "arrow.up.right").font(.caption).accessibilityHidden(true)
+                            }.frame(minHeight: 44).contentShape(Rectangle())
                         }.font(.subheadline)
                     }
                     Divider()
@@ -52,7 +53,7 @@ struct ShoppingView: View {
                     } label: {
                         Label("I bought \(suggestion.ingredientIDs.count == 1 ? "this" : "these") · add to my bar", systemImage: "checkmark")
                             .font(.subheadline.weight(.medium)).frame(maxWidth: .infinity, alignment: .leading).padding(.vertical, 6)
-                    }
+                    }.accessibilityLabel("I bought \(names.formatted(.list(type: .and))), add to my bar")
                 }.padding(22).background(.white.opacity(0.85), in: RoundedRectangle(cornerRadius: 24))
             }
             Text("Based on the original recipes in this collection. Recipe variations aren’t included in these counts.")

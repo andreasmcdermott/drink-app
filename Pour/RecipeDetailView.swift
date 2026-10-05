@@ -3,6 +3,7 @@ import PourCore
 
 struct RecipeDetailView: View {
     @Environment(BarStore.self) private var bar
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     let recipe: Recipe
     @State private var servings = 1
     private let variationID: String?
@@ -18,13 +19,14 @@ struct RecipeDetailView: View {
 
     var body: some View {
         @Bindable var bar = bar
+        let stacked = dynamicTypeSize.isAccessibilitySize
         Screen {
             CocktailArt(recipe: recipe).frame(height: 230).frame(maxWidth: .infinity)
                 .background(Palette.paper(recipe))
                 .clipShape(RoundedRectangle(cornerRadius: 28))
             VStack(alignment: .leading, spacing: 12) {
                 Eyebrow(text: "\(recipe.family) / \(recipe.glass) glass")
-                Text(recipe.name).font(.system(.largeTitle, design: .serif))
+                Text(recipe.name).font(.system(.largeTitle, design: .serif)).accessibilityAddTraits(.isHeader)
                 Text(recipe.subtitle).foregroundStyle(Palette.secondary)
                 if let variation {
                     Text(variation.name).font(.headline).foregroundStyle(Palette.green)
@@ -33,9 +35,10 @@ struct RecipeDetailView: View {
                 Pill(text: missing.isEmpty ? "Ready to mix" : "\(missing.count) ingredient\(missing.count == 1 ? "" : "s") missing")
             }
             VStack(alignment: .leading, spacing: 20) {
-                HStack {
-                    Text("Ingredients").font(.system(.title2, design: .serif))
-                    Spacer()
+                let header = stacked ? AnyLayout(VStackLayout(alignment: .leading, spacing: 12)) : AnyLayout(HStackLayout())
+                header {
+                    Text("Ingredients").font(.system(.title2, design: .serif)).accessibilityAddTraits(.isHeader)
+                    if !stacked { Spacer() }
                     Picker("Measurement unit", selection: $bar.unit) {
                         ForEach(DisplayUnit.allCases, id: \.self) { Text($0.rawValue).tag($0) }
                     }.pickerStyle(.segmented).frame(width: 110)
@@ -45,15 +48,21 @@ struct RecipeDetailView: View {
                     .accessibilityIdentifier("servings")
                 ForEach(ingredients) { ingredient in
                     HStack(alignment: .firstTextBaseline, spacing: 12) {
-                        Image(systemName: bar.pantry.contains(ingredient.ingredientID) ? "checkmark.circle.fill" : "circle.dashed")
-                            .foregroundStyle(Palette.secondary).accessibilityHidden(true)
+                        if !stacked {
+                            Image(systemName: bar.pantry.contains(ingredient.ingredientID) ? "checkmark.circle.fill" : "circle.dashed")
+                                .foregroundStyle(Palette.secondary).accessibilityHidden(true)
+                        }
+                        let amount = Text(ingredient.formatted(servings: servings, unit: bar.unit)).fontWeight(.medium).monospacedDigit()
                         VStack(alignment: .leading, spacing: 3) {
                             Text(Catalog.name(for: ingredient.ingredientID))
+                            if stacked { amount }
                             if !bar.pantry.contains(ingredient.ingredientID) { Text("Not on your shelf").font(.caption).foregroundStyle(Palette.secondary) }
                         }
-                        Spacer(minLength: 0)
-                        Text(ingredient.formatted(servings: servings, unit: bar.unit)).fontWeight(.medium).monospacedDigit()
-                    }.font(.subheadline)
+                        if !stacked {
+                            Spacer(minLength: 0)
+                            amount
+                        }
+                    }.font(.subheadline).accessibilityElement(children: .combine)
                 }
                 if servings > 1 {
                     Text("Amounts are for all \(servings) drinks. Shake or stir in small batches, then divide evenly between glasses. Add fresh ice to each batch.")
@@ -75,13 +84,14 @@ struct RecipeDetailView: View {
             ForEach(Array(steps.enumerated()), id: \.offset) { index, step in
                 HStack(alignment: .top, spacing: 16) {
                     Text(String(format: "%02d", index + 1)).font(.system(.body, design: .serif)).foregroundStyle(Palette.secondary)
+                        .accessibilityLabel("Step \(index + 1)")
                     Text(step).font(.body).lineSpacing(4)
-                }
+                }.accessibilityElement(children: .combine)
             }
             if let garnish = recipe.garnish {
                 VStack(alignment: .leading, spacing: 8) {
                     Eyebrow(text: "Finishing touch · optional")
-                    Text(garnish).font(.subheadline).foregroundStyle(Palette.secondary)
+                    Text(garnish).font(.subheadline)
                 }.padding(18).frame(maxWidth: .infinity, alignment: .leading)
                     .background(Palette.green.opacity(0.06), in: RoundedRectangle(cornerRadius: 18))
             }

@@ -3,6 +3,7 @@ import PourCore
 
 struct DiscoverView: View {
     @Environment(BarStore.self) private var bar
+    @ScaledMetric(relativeTo: .largeTitle) private var displaySize: CGFloat = 38
     let openBar: () -> Void
     private var almost: [Recipe] {
         Catalog.recipes.filter { bar.match(for: $0).missing(from: bar.pantry).count == 1 }
@@ -18,14 +19,14 @@ struct DiscoverView: View {
     var body: some View {
         Screen {
             HStack(alignment: .firstTextBaseline) {
-                Text("pour").font(.system(size: 38, weight: .semibold, design: .serif)).tracking(-2)
+                Text("pour").font(.system(size: displaySize, weight: .semibold, design: .serif)).tracking(-2)
                 Circle().fill(Palette.gold).frame(width: 8, height: 8)
                 Spacer()
                 Eyebrow(text: "Your home bar")
             }.padding(.top, 8)
             VStack(alignment: .leading, spacing: 10) {
                 Text("Good drinks.\nAlready on hand.")
-                    .font(.system(size: 38, weight: .regular, design: .serif)).tracking(-1)
+                    .font(.system(size: displaySize, weight: .regular, design: .serif)).tracking(-1)
                     .fixedSize(horizontal: false, vertical: true)
                 Text(bar.pantry.isEmpty ? "A few ingredients. A world of possibilities. Start with what’s on your shelf." : "You have \(bar.pantry.count) ingredients and \(bar.available.count) drink\(bar.available.count == 1 ? "" : "s") ready to make.")
                     .font(.subheadline).foregroundStyle(Palette.secondary).lineSpacing(4)
@@ -43,7 +44,7 @@ struct DiscoverView: View {
                     VStack(alignment: .leading, spacing: 12) {
                         HStack { Eyebrow(text: "Tonight’s first pour"); Spacer(); Image(systemName: "arrow.up.right") }
                         CocktailArt(recipe: featured).frame(height: 185)
-                        Text(featured.name).font(.system(.largeTitle, design: .serif))
+                        Text(featured.name).font(.system(.largeTitle, design: .serif)).accessibilityAddTraits(.isHeader)
                         Text(featured.subtitle).font(.subheadline).foregroundStyle(Palette.secondary)
                         if let variation = bar.match(for: featured).variation {
                             Text(variation.name).font(.subheadline.weight(.semibold)).foregroundStyle(Palette.green)

@@ -37,7 +37,7 @@ The ingredient parser uses explicit names and aliases. It does not infer brands 
 - `Pour/`: SwiftUI screens, local persistence, and bundled cocktail illustrations.
 - `Sources/PourCore/`: catalog, ingredient parser, measurements, and recommendation engine. This Swift package can be tested without an iOS simulator.
 - `Tests/PourCoreTests/`: catalog integrity, matching, exhaustive purchase-ranking checks, parsing, scaling, and variations.
-- `PourUITests/`: an iPhone flow covering ingredient entry, recommendations, serving changes, favorites, persistence across relaunch, and adding a purchase. UI tests use an isolated preferences suite.
+- `PourUITests/`: an iPhone flow covering ingredient entry, recommendations, serving changes, favorites, persistence across relaunch, and adding a purchase, plus accessibility audits at default and largest text sizes. UI tests use an isolated preferences suite. See [release checks](docs/release-checks.md).
 - `docs/app-icon-prompt.md`: prompt for the ChatGPT-generated Clover Club icon, bundled as an opaque 1024 × 1024 PNG.
 - `Pour/Assets.xcassets/Cocktails/`: one painted illustration per recipe, generated with the built-in image generation tool and bundled for offline use. The shared `CocktailArt` view displays these without edge fading. Each artwork container uses a color sampled from that illustration’s paper border. Run `swift scripts/generate-paper-colors.swift` after replacing cocktail artwork to refresh those asset colors.
 - `docs/artwork-prompts.json`: the shared art direction and individual drink prompts. Clover Club is the style reference for the rest of the collection.

@@ -33,7 +33,7 @@ struct Screen<Content: View>: View {
 struct Eyebrow: View {
     let text: String
     var body: some View {
-        Text(text.uppercased()).font(.system(size: 11, weight: .bold, design: .monospaced))
+        Text(text.uppercased()).font(.system(.caption2, design: .monospaced, weight: .bold))
             .tracking(2).foregroundStyle(Palette.secondary)
     }
 }
@@ -43,7 +43,7 @@ struct SectionTitle: View {
     var caption: String? = nil
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text(title).font(.system(.title2, design: .serif, weight: .medium))
+            Text(title).font(.system(.title2, design: .serif, weight: .medium)).accessibilityAddTraits(.isHeader)
             if let caption { Text(caption).font(.subheadline).foregroundStyle(Palette.secondary) }
         }
     }
@@ -79,11 +79,14 @@ struct CocktailArt: View {
 
 struct RecipeRow: View {
     @Environment(BarStore.self) private var bar
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     let recipe: Recipe
     private var match: RecipeMatch { bar.match(for: recipe) }
     var body: some View {
+        let layout = dynamicTypeSize.isAccessibilitySize
+            ? AnyLayout(VStackLayout(alignment: .leading, spacing: 12)) : AnyLayout(HStackLayout(spacing: 16))
         NavigationLink { RecipeDetailView(recipe: recipe, initialVariationID: match.variation?.id) } label: {
-            HStack(spacing: 16) {
+            layout {
                 CocktailArt(recipe: recipe).frame(width: 78, height: 86)
                     .background(Palette.paper(recipe))
                         .clipShape(RoundedRectangle(cornerRadius: 16))
@@ -97,9 +100,11 @@ struct RecipeRow: View {
                     Text(missing == 0 ? "Ready to mix" : "\(missing) ingredient\(missing == 1 ? "" : "s") missing")
                         .font(.caption.weight(.medium)).foregroundStyle(missing == 0 ? Palette.green : Palette.secondary)
                 }
-                Spacer(minLength: 0)
-                Image(systemName: "chevron.right").font(.caption.weight(.semibold)).foregroundStyle(Palette.secondary)
-            }.padding(12).background(.white.opacity(0.75), in: RoundedRectangle(cornerRadius: 22))
+                if !dynamicTypeSize.isAccessibilitySize {
+                    Spacer(minLength: 0)
+                    Image(systemName: "chevron.right").font(.caption.weight(.semibold)).foregroundStyle(Palette.secondary)
+                }
+            }.frame(maxWidth: .infinity, alignment: .leading).padding(12).background(.white.opacity(0.75), in: RoundedRectangle(cornerRadius: 22))
         }.buttonStyle(.plain).accessibilityIdentifier("recipe-\(recipe.id)")
     }
 }
