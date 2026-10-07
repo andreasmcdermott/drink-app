@@ -17,7 +17,7 @@ public struct Ingredient: Identifiable, Hashable, Sendable {
 }
 
 /// Counts keep the same measure in both unit systems.
-public enum Measure: String, Sendable { case dash, leaf, teaspoon }
+public enum Measure: String, Sendable { case dash, leaf, teaspoon, count }
 public enum DisplayUnit: String, CaseIterable, Sendable { case ml = "ml", oz = "oz" }
 
 /// An authored imperial recipe quantity, independent of its metric specification.
@@ -36,7 +36,7 @@ public enum ImperialAmount: Hashable, Sendable {
 public struct RecipeIngredient: Identifiable, Hashable, Sendable {
     public var id: String { ingredientID }
     public let ingredientID: String
-    /// Milliliters for volumes, otherwise the number of dashes, leaves or teaspoons.
+    /// Milliliters for volumes, otherwise a number of items, dashes, leaves or teaspoons.
     public let amount: Double
     public let measure: Measure?
     public let imperial: ImperialAmount?
@@ -67,9 +67,10 @@ public struct RecipeIngredient: Identifiable, Hashable, Sendable {
         case .dash: label = total == 1 ? "dash" : "dashes"
         case .leaf: label = total == 1 ? "leaf" : "leaves"
         case .teaspoon: label = "tsp"
+        case .count: label = ""
         }
         let value = measure == .teaspoon ? Self.fraction(total) : total.formatted(.number.precision(.fractionLength(0...2)))
-        return "\(value) \(label)"
+        return label.isEmpty ? value : "\(value) \(label)"
     }
 
     private static func fraction(_ value: Double) -> String {
@@ -121,15 +122,19 @@ public struct Variation: Identifiable, Sendable {
     public let note: String
     /// Complete ingredient list, so substitutions participate in matching and scaling.
     public let ingredients: [RecipeIngredient]
-    /// Only needed when the original instructions name an ingredient being replaced.
+    /// Alternate method when a substitution changes ingredients or preparation.
     public let steps: [String]?
+    /// Extra technique shown alongside the measured ingredient adjustments.
+    public let preparationTip: String?
 
-    public init(id: String, name: String, note: String, ingredients: [RecipeIngredient], steps: [String]? = nil) {
+    public init(id: String, name: String, note: String, ingredients: [RecipeIngredient], steps: [String]? = nil,
+                preparationTip: String? = nil) {
         self.id = id
         self.name = name
         self.note = note
         self.ingredients = ingredients
         self.steps = steps
+        self.preparationTip = preparationTip
     }
 }
 

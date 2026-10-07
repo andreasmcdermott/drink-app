@@ -2,6 +2,28 @@ import XCTest
 @testable import PourCore
 
 final class PourCoreTests: XCTestCase {
+    func testFreshRaspberryCosmopolitanMatchingAndScaledTips() throws {
+        let recipe = try XCTUnwrap(Catalog.recipes.first { $0.id == "gin-cosmopolitan" })
+        let parsed = IngredientParser.parse("gin, orange liqueur, lemon, simple syrup, raspberries", catalog: Catalog.ingredients)
+        XCTAssertTrue(parsed.unknown.isEmpty)
+        let match = RecommendationEngine.bestMatch(for: recipe, pantry: parsed.matched)
+        XCTAssertEqual(match.variation?.id, "fresh-raspberries")
+        XCTAssertTrue(match.missing(from: parsed.matched).isEmpty)
+        XCTAssertFalse(match.ingredients.contains { $0.ingredientID == "raspberry-syrup" })
+        let berries = try XCTUnwrap(match.ingredients.first { $0.ingredientID == "raspberries" })
+        for unit in DisplayUnit.allCases {
+            XCTAssertEqual(berries.formatted(servings: 1, unit: unit), "5")
+            XCTAssertEqual(berries.formatted(servings: 2, unit: unit), "10")
+            let tips = RecipeAdjustments.instructions(from: recipe.ingredients, to: match.ingredients, servings: 2, unit: unit)
+            XCTAssertTrue(tips.contains("Add 10 fresh raspberries."))
+            XCTAssertTrue(tips.contains("Add \(unit == .ml ? "45 ml" : "1½ oz") simple syrup."))
+            XCTAssertTrue(tips.contains("Leave out the raspberry syrup."))
+        }
+        XCTAssertEqual(RecommendationEngine.available(in: [recipe], pantry: parsed.matched).map(\.id), [recipe.id])
+        XCTAssertNil(RecommendationEngine.bestMatch(for: recipe, pantry: parsed.matched.union(["raspberry-syrup"])).variation)
+        XCTAssertFalse(try XCTUnwrap(match.variation?.preparationTip).isEmpty)
+    }
+
     func testFeaturedDrinkCyclesThroughEveryAvailableRecipeWithoutRepeating() throws {
         let pantry = Set(Catalog.ingredients.map(\.id))
         let calendar = Calendar(identifier: .gregorian)

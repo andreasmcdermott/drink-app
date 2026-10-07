@@ -67,7 +67,8 @@ struct RecipeDetailView: View {
                         suggestion(name: "The original", alternative: recipe.ingredients)
                     }
                     ForEach(recipe.variations.filter { $0.id != variationID }) { option in
-                        suggestion(name: option.name, alternative: option.ingredients, baseline: recipe.ingredients)
+                        suggestion(name: option.name, alternative: option.ingredients, baseline: recipe.ingredients,
+                                   preparationTip: option.preparationTip)
                     }
                 }
             }
@@ -95,7 +96,8 @@ struct RecipeDetailView: View {
             }
     }
 
-    private func suggestion(name: String, alternative: [RecipeIngredient], baseline: [RecipeIngredient]? = nil) -> some View {
+    private func suggestion(name: String, alternative: [RecipeIngredient], baseline: [RecipeIngredient]? = nil,
+                            preparationTip: String? = nil) -> some View {
         // Each tip describes its own change without undoing another suggested swap.
         let instructions = RecipeAdjustments.instructions(from: baseline ?? ingredients, to: alternative,
                                                          servings: servings, unit: bar.unit)
@@ -104,6 +106,10 @@ struct RecipeDetailView: View {
             Text(instructions.joined(separator: " "))
                 .font(.subheadline).foregroundStyle(Palette.secondary)
                 .fixedSize(horizontal: false, vertical: true)
+            if let preparationTip {
+                Text(preparationTip).font(.subheadline).foregroundStyle(Palette.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
